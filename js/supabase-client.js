@@ -1,8 +1,8 @@
 // js/supabase-client.js
 
 // URL dan API Key proyek Supabase Anda
-const SUPABASE_URL = 'https://tiqxhcakgqpkfrmizgik.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_G54Razu4VQVATmQjuEZLNA_UNY58JHv';
+const SUPABASE_URL = 'https://trsszzkgotrbrjkmarxf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_XutFVYsu5HnM-fm8Z9JCwg_7stFT96-';
 
 // Inisialisasi Klien Supabase (Pastikan script CDN supabase dipanggil sebelum file ini di HTML)
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
