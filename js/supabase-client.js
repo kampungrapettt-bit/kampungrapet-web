@@ -5,7 +5,7 @@ const SUPABASE_URL = 'https://trsszzkgotrbrjkmarxf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_XutFVYsu5HnM-fm8Z9JCwg_7stFT96-';
 
 // Inisialisasi Klien Supabase (Pastikan script CDN supabase dipanggil sebelum file ini di HTML)
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Fungsi utilitas untuk memunculkan notifikasi (toast/alert sederhana)
 function showNotification(message, isError = false) {
