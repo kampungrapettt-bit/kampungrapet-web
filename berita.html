@@ -92,7 +92,7 @@
                         article.innerHTML = `
                             ${thumbnailHtml}
                             <h2>${berita.judul}</h2>
-                            <div class="news-meta"><i class="fa-regular fa-calendar"></i> ${dateStr} | Diterbitkan oleh: Pengurus Kampungrapet</div>
+                            <div class="news-meta"><i class="fa-regular fa-calendar"></i> ${dateStr} | Diterbitkan oleh: ${berita.author || 'Pengurus Kampungrapet'}</div>
                             <p style="white-space: pre-line;">${formatIsi}</p>
                         `;
                         container.appendChild(article);

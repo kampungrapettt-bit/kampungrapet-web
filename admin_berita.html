@@ -241,8 +241,11 @@
                     if (error) throw error;
                     showNotification('Berita berhasil diperbarui!');
                 } else {
-                    // Proses Tambah Baru
-                    const { error } = await supabase.from('berita').insert([{ judul, tanggal, isi, foto_url }]);
+                    // Ambil username admin yang sedang login
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const username = session ? session.user.email.replace('@admin.local', '') : 'Admin';
+                    
+                    const { error } = await supabase.from('berita').insert([{ judul, tanggal, isi, foto_url, author: username }]);
                     if (error) throw error;
                     showNotification('Berita baru berhasil dipublikasikan!');
                 }
