@@ -7,6 +7,8 @@
     <title>Profil - Dusun Kampungrapet</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
     <style>
         .content-section {
             padding: 8rem 5% 4rem;
@@ -101,93 +103,93 @@
     </footer>
 
     <script>
-        // Fetch Demografi
-        fetch('content/demografi.json')
-            .then(response => response.json())
-            .then(data => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Fetch Demografi
+            try {
+                const { data, error } = await supabase.from('demografi').select('*').eq('id', 1).single();
+                if (error) throw error;
+                
                 const container = document.getElementById('demografi-container');
                 container.innerHTML = `
                     <div style="flex: 1; min-width: 150px; background: var(--primary-light); padding: 1.5rem; border-radius: 10px; text-align: center;">
                         <i class="fa-solid fa-users" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
-                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.total_penduduk}</h3>
+                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.total_penduduk || 0}</h3>
                         <p style="font-size: 0.9rem;">Total Penduduk</p>
                     </div>
                     <div style="flex: 1; min-width: 150px; background: var(--primary-light); padding: 1.5rem; border-radius: 10px; text-align: center;">
                         <i class="fa-solid fa-person" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
-                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.laki_laki}</h3>
+                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.laki_laki || 0}</h3>
                         <p style="font-size: 0.9rem;">Laki-laki</p>
                     </div>
                     <div style="flex: 1; min-width: 150px; background: var(--primary-light); padding: 1.5rem; border-radius: 10px; text-align: center;">
                         <i class="fa-solid fa-person-dress" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
-                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.perempuan}</h3>
+                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.perempuan || 0}</h3>
                         <p style="font-size: 0.9rem;">Perempuan</p>
                     </div>
                     <div style="flex: 1; min-width: 150px; background: var(--primary-light); padding: 1.5rem; border-radius: 10px; text-align: center;">
                         <i class="fa-solid fa-school" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
-                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.sd}</h3>
+                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.sd || 0}</h3>
                         <p style="font-size: 0.9rem;">Sekolah Dasar (SD)</p>
                     </div>
                     <div style="flex: 1; min-width: 150px; background: var(--primary-light); padding: 1.5rem; border-radius: 10px; text-align: center;">
                         <i class="fa-solid fa-school-flag" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
-                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.smp}</h3>
+                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.smp || 0}</h3>
                         <p style="font-size: 0.9rem;">Sekolah Menengah (SMP)</p>
                     </div>
                     <div style="flex: 1; min-width: 150px; background: var(--primary-light); padding: 1.5rem; border-radius: 10px; text-align: center;">
                         <i class="fa-solid fa-place-of-worship" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
-                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.tempat_ibadah}</h3>
+                        <h3 style="font-size: 1.5rem; color: var(--primary-dark);">${data.tempat_ibadah || 0}</h3>
                         <p style="font-size: 0.9rem;">Tempat Ibadah</p>
                     </div>
                 `;
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error("Error mengambil data demografi:", error);
-                document.getElementById('demografi-container').innerHTML = '<p style="text-align: center; color: red; width: 100%;">Gagal memuat demografi.</p>';
-            });
+                document.getElementById('demografi-container').innerHTML = '<p style="text-align: center; color: red; width: 100%;">Gagal memuat demografi dari server.</p>';
+            }
 
-        // Fetch UMKM
-        fetch('content/umkm.json')
-            .then(response => response.json())
-            .then(data => {
+            // Fetch UMKM
+            try {
+                const { data: list_umkm, error } = await supabase.from('umkm').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                
                 const container = document.getElementById('umkm-container');
                 container.innerHTML = '';
                 
-                if (data.list_umkm && data.list_umkm.length > 0) {
-                    data.list_umkm.forEach(item => {
+                if (list_umkm && list_umkm.length > 0) {
+                    list_umkm.forEach(item => {
                         const div = document.createElement('div');
                         div.style.display = 'flex';
                         div.style.gap = '1.5rem';
                         div.style.alignItems = 'center';
                         div.style.borderBottom = '1px solid var(--border-color)';
                         div.style.paddingBottom = '1rem';
-                        
-                        // Responsive check: if on mobile, flex-direction column (handled via basic inline styles or assume CSS handles it. I'll just use a media query in style.css later or inline flex-wrap).
                         div.style.flexWrap = 'wrap';
 
                         let imgHtml = '';
-                        if (item.image) {
-                            imgHtml = `<img src="${item.image}" alt="${item.title}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; flex-shrink: 0;">`;
+                        if (item.foto_url) {
+                            imgHtml = `<img src="${item.foto_url}" alt="${item.nama_usaha}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; flex-shrink: 0;">`;
                         }
 
-                        let contactHtml = item.contact ? `<p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--primary-color);"><i class="fa-solid fa-phone"></i> ${item.contact}</p>` : '';
+                        let contactHtml = item.kontak ? `<p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--primary-color);"><i class="fa-solid fa-phone"></i> ${item.kontak}</p>` : '';
 
                         div.innerHTML = `
                             ${imgHtml}
                             <div>
-                                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">${item.title}</h3>
-                                <p style="font-size: 0.95rem; color: var(--text-light);">${item.description}</p>
+                                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">${item.nama_usaha}</h3>
+                                <p style="font-size: 0.95rem; color: var(--text-light);">${item.deskripsi}</p>
                                 ${contactHtml}
                             </div>
                         `;
                         container.appendChild(div);
                     });
                 } else {
-                    container.innerHTML = '<p style="text-align: center;">Belum ada data UMKM terdaftar.</p>';
+                    container.innerHTML = '<p>Belum ada data UMKM.</p>';
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error("Error mengambil data UMKM:", error);
-                document.getElementById('umkm-container').innerHTML = '<p style="text-align: center; color: red;">Gagal memuat UMKM.</p>';
-            });
+                document.getElementById('umkm-container').innerHTML = '<p style="text-align: center; color: red;">Gagal memuat UMKM dari server.</p>';
+            }
+        });
     </script>
 </body>
 </html>
