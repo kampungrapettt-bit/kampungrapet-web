@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Daya Tarik - Admin Kampungrapet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5f9ecf;
+            --bg-color: #f1f5f9;
+            --text-dark: #334155;
+            --white: #ffffff;
+            --border: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); }
+        .topbar { background-color: var(--white); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .content-area { padding: 2rem 5%; max-width: 800px; margin: 0 auto; }
+        .page-title { font-size: 1.5rem; margin-bottom: 2rem; color: #0f172a; }
+        .card { background-color: var(--white); border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;}
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 5px; outline: none; font-size: 1rem; }
+        .form-control:focus { border-color: var(--primary); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .btn-submit { background-color: var(--primary); color: var(--white); border: none; padding: 0.75rem 2rem; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .btn-submit:hover { background-color: #4b80a8; }
+        .btn-back { display: inline-block; margin-bottom: 1rem; color: var(--text-dark); text-decoration: none; font-weight: 500; }
+        .btn-back:hover { color: var(--primary); }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.95rem; }
+        .data-table th, .data-table td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; }
+        .data-table th { background-color: #f8fafc; font-weight: 600; color: #475569; }
+        .btn-action { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.85rem; margin-right: 5px; margin-bottom: 5px; }
+        .btn-edit { background-color: #f59e0b; }
+        .btn-edit:hover { background-color: #d97706; }
+        .btn-delete { background-color: #ef4444; }
+        .btn-delete:hover { background-color: #dc2626; }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="image/logo.jpeg" alt="Logo Dusun" style="height: 30px; border-radius: 5px;">
+            <strong>Admin Dusun</strong>
+        </div>
+        <a href="index.html" target="_blank" style="color: var(--primary); text-decoration: none;">Lihat Website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    </header>
+
+    <main class="content-area">
+        <a href="admin_dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</a>
+        <h1 class="page-title">Kelola Daya Tarik Dusun</h1>
+        
+        <div class="card">
+            <!-- Form Terintegrasi Supabase -->
+            <form id="dayatarikForm" onsubmit="handleFormSubmit(event)">
+                
+                <div class="form-group">
+                    <label for="nama_wisata">Nama Tempat / Daya Tarik</label>
+                    <input type="text" id="nama_wisata" class="form-control" placeholder="Contoh: Sawah Terasering..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="file_foto">Foto Lokasi</label>
+                    <input type="file" id="file_foto" class="form-control" accept="image/*" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="deskripsi">Deskripsi</label>
+                    <textarea id="deskripsi" class="form-control" placeholder="Tuliskan daya tariknya..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit"><i class="fa-solid fa-save"></i> Simpan Data</button>
+            </form>
+        </div>
+
+        <div class="card" style="padding-top: 2rem;">
+            <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Daftar Daya Tarik</h2>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>Daya Tarik</th>
+                            <th style="width: 200px;">Aksi</th>
+                        </tr>
+                    </thead>
+    <script>
+        let editId = null;
+
+        document.addEventListener('DOMContentLoaded', loadDayaTarik);
+
+        async function loadDayaTarik() {
+            try {
+                const { data, error } = await supabase.from('daya_tarik').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+
+                const tbody = document.querySelector('.data-table tbody');
+                tbody.innerHTML = ''; 
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data Daya Tarik</td></tr>';
+                    return;
+                }
+
+                data.forEach((item, index) => {
+                    const nama = item.nama_wisata ? item.nama_wisata.replace(/'/g, "\\'") : '';
+                    const desk = item.deskripsi ? item.deskripsi.replace(/'/g, "\\'") : '';
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>
+                                <strong>${item.nama_wisata}</strong><br>
+                                <small>${item.deskripsi.substring(0, 80)}...</small>
+                            </td>
+                            <td><img src="${item.foto_url}" style="height: 50px; width: 80px; border-radius: 5px; object-fit: cover;"></td>
+                            <td>
+                                <button class="btn-action btn-edit" onclick="editData('${item.id}', '${nama}', '${desk}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                                <button class="btn-action btn-delete" onclick="hapusData('${item.id}')"><i class="fa-solid fa-trash"></i> Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Gagal memuat Daya Tarik:", err.message);
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                const nama_wisata = document.getElementById('nama_wisata').value;
+                const deskripsi = document.getElementById('deskripsi').value;
+                const fileInput = document.getElementById('file_foto');
+                
+                let foto_url = null;
+
+                if (fileInput && fileInput.files.length > 0) {
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengompres Foto...';
+                    const compressedFile = await compressImage(fileInput.files[0], 800);
+                    
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengunggah...';
+                    foto_url = await uploadImage(compressedFile, 'wisata');
+                } else if (!editId) {
+                    throw new Error("Harap pilih foto lokasi terlebih dahulu!");
+                }
+
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan Database...';
+
+                if (editId) {
+                    const updates = { nama_wisata, deskripsi };
+                    if (foto_url) updates.foto_url = foto_url; 
+
+                    const { error } = await supabase.from('daya_tarik').update(updates).eq('id', editId);
+                    if (error) throw error;
+                    showNotification('Data Daya Tarik berhasil diperbarui!');
+                } else {
+                    const { error } = await supabase.from('daya_tarik').insert([{ nama_wisata, deskripsi, foto_url }]);
+                    if (error) throw error;
+                    showNotification('Daya Tarik berhasil ditambahkan!');
+                }
+
+                event.target.reset();
+                editId = null;
+                await loadDayaTarik();
+            } catch (err) {
+                showNotification(err.message, true);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function editData(id, nama, desk) {
+            editId = id;
+            document.getElementById('nama_wisata').value = nama;
+            document.getElementById('deskripsi').value = desk;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showNotification('Mode Edit aktif.\n(Biarkan "Pilih File" kosong jika tidak ingin mengganti foto yang lama)');
+        }
+
+        async function hapusData(id) {
+            if(!confirm('Yakin ingin menghapus Daya Tarik ini secara permanen dari database?')) return;
+            
+            try {
+                const { error } = await supabase.from('daya_tarik').delete().eq('id', id);
+                if (error) throw error;
+                showNotification('Daya Tarik berhasil dihapus!');
+                await loadDayaTarik();
+            } catch (err) {
+                showNotification(err.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

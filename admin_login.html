@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - Dusun Kampungrapet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5f9ecf;
+            --bg-color: #f1f5f9;
+            --text-dark: #334155;
+            --white: #ffffff;
+            --border: #e2e8f0;
+        }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif;
+        }
+        body {
+            display: flex; height: 100vh; background-color: var(--bg-color); 
+            align-items: center; justify-content: center;
+        }
+        .login-container {
+            background-color: var(--white);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-container h1 {
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        .login-container p {
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-dark);
+        }
+        .form-control {
+            width: 100%; padding: 0.75rem; border: 1px solid var(--border);
+            border-radius: 5px; outline: none; font-size: 1rem;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+        .btn-login {
+            background-color: var(--primary); color: var(--white);
+            border: none; padding: 0.8rem; border-radius: 5px;
+            font-size: 1rem; cursor: pointer; transition: 0.2s; font-weight: 600;
+            width: 100%; display: block; text-decoration: none;
+        }
+        .btn-login:hover {
+            background-color: #4b80a8;
+        }
+        .back-link {
+            display: block;
+            margin-top: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+
+    <div class="login-container">
+        <img src="image/logo.jpeg" alt="Logo Dusun" style="height: 60px; margin-bottom: 1rem; border-radius: 10px;">
+        <h1>Sistem Admin</h1>
+        <p>Silakan masuk untuk mengelola website Kampungrapet.</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Masukkan username..." required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Masukkan password..." required>
+            </div>
+
+            <button type="submit" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> Masuk Dashboard</button>
+            <p id="error-msg" style="color: #ef4444; margin-top: 1rem; font-size: 0.9rem; display: none;"></p>
+        </form>
+
+        <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Kembali ke Halaman Utama</a>
+    </div>
+
+    <script>
+        // Cek apakah sudah login, jika sudah arahkan ke dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                window.location.href = 'admin_dashboard.html';
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const errorMsg = document.getElementById('error-msg');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memeriksa...';
+            btn.disabled = true;
+            errorMsg.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Trik: Supabase butuh format email, jadi kita tambahkan domain palsu di belakang username
+            // Contoh: 'doni' menjadi 'doni@admin.local'
+            const emailFormat = `${username}@admin.local`;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: emailFormat,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // Jika sukses, arahkan ke dashboard
+                window.location.href = 'admin_dashboard.html';
+            } catch (err) {
+                errorMsg.innerText = "Username atau password salah!";
+                errorMsg.style.display = 'block';
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

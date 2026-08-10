@@ -1,0 +1,16 @@
+{
+  "list_umkm": [
+    {
+      "title": "Kopi Bubuk Asli Kampungrapet",
+      "image": "https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=500&q=80",
+      "description": "Kopi robusta pilihan hasil petikan petani lokal Dusun Kampungrapet, disangrai dengan kayu bakar untuk aroma khas.",
+      "contact": "Pak Budi (0812-xxxx-xxxx)"
+    },
+    {
+      "title": "Kerajinan Anyaman Bambu",
+      "image": "https://images.unsplash.com/photo-1601662528567-526cd06f6582?w=500&q=80",
+      "description": "Berbagai macam produk kerajinan seperti tampah, bakul, dan hiasan dinding yang dibuat secara tradisional oleh ibu-ibu PKK.",
+      "contact": "Ibu Siti (0813-xxxx-xxxx)"
+    }
+  ]
+}

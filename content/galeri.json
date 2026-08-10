@@ -1,0 +1,14 @@
+{
+  "list_galeri": [
+    {
+      "title": "Pemandangan Dusun di Pagi Hari",
+      "image": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=500&q=80",
+      "caption": "Suasana asri nan sejuk di pagi hari yang menjadi ciri khas dusun kami."
+    },
+    {
+      "title": "Aktivitas Pertanian Warga",
+      "image": "https://images.unsplash.com/photo-1558442074-3c19857bc1dc?w=500&q=80",
+      "caption": ""
+    }
+  ]
+}

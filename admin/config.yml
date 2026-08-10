@@ -1,0 +1,64 @@
+backend:
+  name: github
+  # GANTI "username/repo" DI BAWAH INI DENGAN USERNAME DAN NAMA REPOSITORI GITHUB ANDA NANTINYA
+  # Contoh: repo: "Budi/kampungrapet-web"
+  repo: "username/repo"
+  branch: main 
+
+# Folder tempat CMS menyimpan media/gambar yang diupload
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "data_website"
+    label: "Data Website"
+    files:
+      - name: "berita"
+        label: "Daftar Berita"
+        file: "content/berita.json"
+        fields:
+          - name: "list_berita"
+            label: "Kumpulan Berita"
+            widget: "list"
+            fields:
+              - {label: "Judul", name: "title", widget: "string"}
+              - {label: "Tanggal", name: "date", widget: "datetime"}
+              - {label: "Penulis", name: "author", widget: "string", default: "Admin Karang Taruna"}
+              - {label: "Foto Cover (Opsional)", name: "thumbnail", widget: "image", required: false}
+              - {label: "Isi Berita", name: "body", widget: "text"}
+
+      - name: "galeri"
+        label: "Daftar Galeri"
+        file: "content/galeri.json"
+        fields:
+          - name: "list_galeri"
+            label: "Kumpulan Foto"
+            widget: "list"
+            fields:
+              - {label: "Nama Foto", name: "title", widget: "string"}
+              - {label: "Foto", name: "image", widget: "image"}
+              - {label: "Keterangan (Opsional)", name: "caption", widget: "string", required: false}
+
+      - name: "umkm"
+        label: "Daftar UMKM"
+        file: "content/umkm.json"
+        fields:
+          - name: "list_umkm"
+            label: "Kumpulan UMKM Dusun"
+            widget: "list"
+            fields:
+              - {label: "Nama Usaha", name: "title", widget: "string"}
+              - {label: "Foto Produk", name: "image", widget: "image"}
+              - {label: "Deskripsi", name: "description", widget: "text"}
+              - {label: "Kontak Pemilik (Opsional)", name: "contact", widget: "string", required: false}
+
+      - name: "demografi"
+        label: "Data Demografi"
+        file: "content/demografi.json"
+        fields:
+          - {label: "Total Penduduk", name: "total_penduduk", widget: "number", value_type: "int"}
+          - {label: "Jumlah Laki-laki", name: "laki_laki", widget: "number", value_type: "int"}
+          - {label: "Jumlah Perempuan", name: "perempuan", widget: "number", value_type: "int"}
+          - {label: "Jumlah Sekolah Dasar (SD)", name: "sd", widget: "number", value_type: "int"}
+          - {label: "Jumlah Sekolah Menengah (SMP)", name: "smp", widget: "number", value_type: "int"}
+          - {label: "Jumlah Tempat Ibadah", name: "tempat_ibadah", widget: "number", value_type: "int"}

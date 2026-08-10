@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berita - Dusun Kampungrapet</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .content-section {
+            padding: 8rem 5% 4rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .news-article {
+            background: var(--surface-color);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s;
+        }
+        .news-article:hover {
+            transform: translateX(5px);
+            border-left: 5px solid var(--primary-color);
+        }
+        .news-meta {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-brand"><img src="image/logo.jpeg" alt="Logo Dusun" style="height: 40px; margin-right: 10px; border-radius: 5px;"> Kampungrapet</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Beranda</a></li>
+            <li><a href="profil.html">Profil</a></li>
+            <li><a href="berita.html" class="active">Berita</a></li>
+            <li><a href="galeri.html">Galeri</a></li>
+            <li><a href="kontak.html">Kontak</a></li>
+        </ul>
+    </nav>
+
+    <main class="content-section">
+        <h1 style="text-align: center; font-size: 3rem; margin-bottom: 2rem;">Berita & Kegiatan</h1>
+        
+        <div id="berita-container">
+            <p style="text-align: center;">Memuat berita...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Dusun Kampungrapet.</p>
+    </footer>
+
+    <script>
+        // Ambil berita dari Supabase dan tampilkan ke halaman
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('berita-container');
+            
+            try {
+                const { data, error } = await supabase.from('berita').select('*').order('tanggal', { ascending: false });
+                
+                if (error) throw error;
+                
+                container.innerHTML = ''; // Bersihkan tulisan loading
+                
+                if (data && data.length > 0) {
+                    data.forEach(berita => {
+                        // Format tanggal
+                        const dateObj = new Date(berita.tanggal);
+                        const dateStr = dateObj.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+                        
+                        const article = document.createElement('article');
+                        article.className = 'news-article';
+                        
+                        let thumbnailHtml = '';
+                        if (berita.foto_url) {
+                            thumbnailHtml = `<img src="${berita.foto_url}" style="width:100%; max-height:400px; object-fit:cover; border-radius:10px; margin-bottom:1.5rem;" alt="${berita.judul}">`;
+                        }
+
+                        // Buat agar isi teks mendukung enter (baris baru)
+                        const formatIsi = berita.isi.replace(/\n/g, '<br>');
+
+                        article.innerHTML = `
+                            ${thumbnailHtml}
+                            <h2>${berita.judul}</h2>
+                            <div class="news-meta"><i class="fa-regular fa-calendar"></i> ${dateStr} | Diterbitkan oleh: Pengurus Kampungrapet</div>
+                            <p style="white-space: pre-line;">${formatIsi}</p>
+                        `;
+                        container.appendChild(article);
+                    });
+                } else {
+                    container.innerHTML = '<p style="text-align: center; font-size: 1.1rem;">Belum ada berita yang diterbitkan saat ini.</p>';
+                }
+            } catch (error) {
+                console.error("Error mengambil data berita:", error.message);
+                container.innerHTML = '<p style="text-align: center; color: red;">Gagal memuat berita dari server.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Website Resmi Dusun Kampungrapet, Pusat Informasi dan Potensi Dusun.">
+    <title>Beranda - Dusun Kampungrapet</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Menggunakan Font Awesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+
+    <!-- Navigasi -->
+    <nav>
+        <div class="nav-brand">
+            <img src="image/logo.jpeg" alt="Logo Dusun" style="height: 40px; margin-right: 10px; border-radius: 5px;"> Kampungrapet
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Beranda</a></li>
+            <li><a href="profil.html">Profil</a></li>
+            <li><a href="berita.html">Berita</a></li>
+            <li><a href="galeri.html">Galeri</a></li>
+            <li><a href="kontak.html">Kontak</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header / Hero Section -->
+    <header class="hero">
+        <h1>Selamat Datang di Dusun Kampungrapet</h1>
+        <p>Jelajahi potensi, kegiatan, dan pesona alam desa kami melalui portal informasi digital resmi ini.</p>
+        <div class="btn-group">
+            <a href="profil.html" class="btn">Kenali Kami</a>
+            <a href="berita.html" class="btn btn-outline">Lihat Kabar Terbaru</a>
+        </div>
+    </header>
+
+
+    <!-- Daya Tarik Dusun -->
+    <section class="container" style="padding-top: 0;">
+        <h2 class="section-title">Daya Tarik Dusun</h2>
+        <div class="grid" id="dayatarik-container">
+            <p style="text-align: center; grid-column: 1 / -1;">Memuat daya tarik...</p>
+        </div>
+    </section>
+
+    <!-- Fitur Utama -->
+    <main class="container">
+        <h2 class="section-title">Akses Informasi Terpadu</h2>
+        <div class="grid">
+            <div class="card">
+                <i class="fa-solid fa-landmark card-icon"></i>
+                <h3>Profil Dusun</h3>
+                <p>Pelajari sejarah panjang, visi misi, serta letak geografis Dusun Kampungrapet yang asri dan sejuk.</p>
+                <br>
+                <a href="profil.html" class="btn btn-outline" style="color: var(--primary-color); border-color: var(--primary-color);">Baca Selengkapnya</a>
+            </div>
+            
+            <div class="card">
+                <i class="fa-regular fa-newspaper card-icon"></i>
+                <h3>Berita & Kegiatan</h3>
+                <p>Tetap update dengan berbagai kegiatan warga, gotong royong, dan program kerja Karang Taruna terbaru.</p>
+                <br>
+                <a href="berita.html" class="btn btn-outline" style="color: var(--primary-color); border-color: var(--primary-color);">Lihat Berita</a>
+            </div>
+            
+            <div class="card">
+                <i class="fa-solid fa-images card-icon"></i>
+                <h3>Galeri Dusun</h3>
+                <p>Kumpulan dokumentasi foto-foto keindahan alam, hasil tani, dan senyum ramah warga Dusun Kampungrapet.</p>
+                <br>
+                <a href="galeri.html" class="btn btn-outline" style="color: var(--primary-color); border-color: var(--primary-color);">Buka Galeri</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Dusun Kampungrapet. Dikelola oleh Karang Taruna dan Perangkat Dusun.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.6;">Dibuat sebagai dedikasi Program KKN.</p>
+        <div style="margin-top: 1rem;">
+            <a href="admin_login.html" style="color: var(--primary-light); font-size: 0.9rem; text-decoration: underline;"><i class="fa-solid fa-lock"></i> Login Admin</a>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('dayatarik-container');
+            
+            try {
+                // Ambil 3 daya tarik terbaru
+                const { data, error } = await supabase.from('daya_tarik').select('*').order('created_at', { ascending: false }).limit(3);
+                
+                if (error) throw error;
+                
+                container.innerHTML = '';
+                
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'card';
+                        div.style = 'padding: 0; overflow: hidden; text-align: left;';
+                        
+                        div.innerHTML = `
+                            <img src="${item.foto_url}" alt="${item.nama_wisata}" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div style="padding: 1.5rem;">
+                                <h3 style="margin-bottom: 0.5rem; color: var(--primary-dark);">${item.nama_wisata}</h3>
+                                <p style="font-size: 0.95rem; margin-bottom: 0;">${item.deskripsi}</p>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Belum ada data daya tarik.</p>';
+                }
+            } catch (error) {
+                console.error("Error mengambil data daya tarik:", error.message);
+                container.innerHTML = '<p style="text-align: center; color: red; grid-column: 1 / -1;">Gagal memuat data dari server.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Demografi - Admin Kampungrapet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5f9ecf;
+            --bg-color: #f1f5f9;
+            --text-dark: #334155;
+            --white: #ffffff;
+            --border: #e2e8f0;
+        }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: var(--bg-color); color: var(--text-dark);
+        }
+        .topbar {
+            background-color: var(--white); padding: 1rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .content-area {
+            padding: 2rem 5%; max-width: 800px; margin: 0 auto;
+        }
+        .page-title {
+            font-size: 1.5rem; margin-bottom: 2rem; color: #0f172a;
+        }
+        /* Forms */
+        .card {
+            background-color: var(--white); border-radius: 10px; padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block; font-weight: 500; margin-bottom: 0.5rem;
+        }
+        .form-control {
+            width: 100%; padding: 0.75rem; border: 1px solid var(--border);
+            border-radius: 5px; outline: none; font-size: 1rem;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+        .btn-submit {
+            background-color: var(--primary); color: var(--white);
+            border: none; padding: 0.75rem 2rem; border-radius: 5px;
+            font-size: 1rem; cursor: pointer; transition: 0.2s; font-weight: 500;
+        }
+        .btn-submit:hover {
+            background-color: #4b80a8;
+        }
+        .btn-back {
+            display: inline-block; margin-bottom: 1rem; color: var(--text-dark); text-decoration: none; font-weight: 500;
+        }
+        .btn-back:hover {
+            color: var(--primary);
+        }
+        .flex-row {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+        }
+        .flex-col {
+            flex: 1; min-width: 200px;
+        }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="image/logo.jpeg" alt="Logo Dusun" style="height: 30px; border-radius: 5px;">
+            <strong>Admin Dusun</strong>
+        </div>
+        <a href="index.html" target="_blank" style="color: var(--primary); text-decoration: none;">Lihat Website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    </header>
+
+    <main class="content-area">
+        <a href="admin_dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</a>
+        <h1 class="page-title">Edit Data Demografi</h1>
+        
+        <div class="card">
+            <!-- Form Terintegrasi Supabase -->
+            <form id="demografiForm">
+                
+                <div class="flex-row">
+                    <div class="form-group flex-col">
+                        <label for="total">Total Penduduk</label>
+                        <input type="number" id="total" class="form-control" value="500" required>
+                    </div>
+                    <div class="form-group flex-col">
+                        <label for="laki">Laki-laki</label>
+                        <input type="number" id="laki" class="form-control" value="240" required>
+                    </div>
+                    <div class="form-group flex-col">
+                        <label for="perempuan">Perempuan</label>
+                        <input type="number" id="perempuan" class="form-control" value="260" required>
+                    </div>
+                </div>
+                
+                <div class="flex-row">
+                    <div class="form-group flex-col">
+                        <label for="sd">Jumlah SD</label>
+                        <input type="number" id="sd" class="form-control" value="1" required>
+                    </div>
+                    <div class="form-group flex-col">
+                        <label for="smp">Jumlah SMP</label>
+                        <input type="number" id="smp" class="form-control" value="0" required>
+                    </div>
+                    <div class="form-group flex-col">
+                        <label for="ibadah">Tempat Ibadah</label>
+                        <input type="number" id="ibadah" class="form-control" value="3" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-submit" style="margin-top: 1rem;"><i class="fa-solid fa-save"></i> Simpan Perubahan</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Mengambil data dari Supabase saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const { data, error } = await supabase.from('demografi').select('*').eq('id', 1).single();
+                if (error) throw error;
+                
+                if (data) {
+                    document.getElementById('total').value = data.total_penduduk;
+                    document.getElementById('laki').value = data.laki_laki;
+                    document.getElementById('perempuan').value = data.perempuan;
+                    document.getElementById('sd').value = data.sd;
+                    document.getElementById('smp').value = data.smp;
+                    document.getElementById('ibadah').value = data.tempat_ibadah;
+                }
+            } catch (err) {
+                console.error('Gagal mengambil data demografi:', err.message);
+            }
+        });
+
+        // Menyimpan data ke Supabase saat form disubmit
+        document.getElementById('demografiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            // Ubah tombol jadi loading
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            const updates = {
+                total_penduduk: parseInt(document.getElementById('total').value) || 0,
+                laki_laki: parseInt(document.getElementById('laki').value) || 0,
+                perempuan: parseInt(document.getElementById('perempuan').value) || 0,
+                sd: parseInt(document.getElementById('sd').value) || 0,
+                smp: parseInt(document.getElementById('smp').value) || 0,
+                tempat_ibadah: parseInt(document.getElementById('ibadah').value) || 0
+            };
+
+            try {
+                const { error } = await supabase.from('demografi').update(updates).eq('id', 1);
+                if (error) throw error;
+                showNotification('Data Demografi berhasil diperbarui di Database!');
+            } catch (err) {
+                showNotification(err.message, true);
+            } finally {
+                // Kembalikan tombol seperti semula
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontak - Dusun Kampungrapet</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .content-section {
+            padding: 8rem 5% 4rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .contact-card {
+            background: var(--surface-color);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+        .contact-item i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            width: 30px;
+        }
+        .btn-wa {
+            background-color: #25D366; /* WhatsApp Green */
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .btn-wa:hover {
+            background-color: #128C7E;
+            transform: translateY(-3px);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-brand"><img src="image/logo.jpeg" alt="Logo Dusun" style="height: 40px; margin-right: 10px; border-radius: 5px;"> Kampungrapet</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Beranda</a></li>
+            <li><a href="profil.html">Profil</a></li>
+            <li><a href="berita.html">Berita</a></li>
+            <li><a href="galeri.html">Galeri</a></li>
+            <li><a href="kontak.html" class="active">Kontak</a></li>
+        </ul>
+    </nav>
+
+    <main class="content-section">
+        <h1 style="text-align: center; font-size: 3rem; margin-bottom: 2rem;">Hubungi Kami</h1>
+        
+        <div class="contact-card">
+            <h2>Pusat Informasi Dusun</h2>
+            <p>Jika ada keperluan administrasi, pelaporan warga, atau pertanyaan mengenai potensi dusun, silakan hubungi pengurus kami melalui kontak di bawah ini.</p>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <div>
+                        <strong>Alamat Balai Dusun:</strong><br>
+                        .......................................
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fa-solid fa-envelope"></i>
+                    <div>
+                        <strong>Email:</strong><br>
+                        pemudakampungrapet@gmail.com
+                    </div>
+                </div>
+            </div>
+
+            <a href="https://wa.me/085-998055-666" target="_blank" class="btn btn-wa">
+                <i class="fa-brands fa-whatsapp"></i> Chat via WhatsApp
+            </a>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Dusun Kampungrapet.</p>
+    </footer>
+
+</body>
+</html>
