@@ -121,8 +121,10 @@
                         
                         const captionHtml = item.judul ? `<div class="gallery-caption">${item.judul}</div>` : '';
                         
+                        const safeTitle = item.judul ? item.judul.replace(/'/g, "") : "Galeri_Kampungrapet";
+                        
                         div.innerHTML = `
-                            <a href="${item.foto_url}" class="download-btn" download="Galeri_Kampungrapet" title="Download Gambar" target="_blank">
+                            <a href="javascript:void(0)" onclick="forceDownload('${item.foto_url}', '${safeTitle}.jpg')" class="download-btn" title="Download Gambar">
                                 <i class="fa-solid fa-download"></i>
                             </a>
                             <img src="${item.foto_url}" alt="${item.judul}">
@@ -140,6 +142,33 @@
                 container.classList.remove('gallery-grid');
             }
         });
+
+        async function forceDownload(url, filename) {
+            try {
+                // Fetch image as blob
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Gagal mengunduh gambar");
+                
+                const blob = await response.blob();
+                
+                // Create temporary local URL for the blob
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                // Create hidden link and click it to trigger download
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename || 'kampungrapet-image.jpg';
+                document.body.appendChild(link);
+                link.click();
+                
+                // Cleanup
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                alert("Gagal mengunduh gambar. Silakan coba lagi.");
+                console.error(error);
+            }
+        }
     </script>
 </body>
 </html>
