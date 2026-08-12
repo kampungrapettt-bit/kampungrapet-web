@@ -48,6 +48,32 @@
         .gallery-item:hover .gallery-caption {
             transform: translateY(0);
         }
+        .download-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: 0;
+            transition: opacity 0.3s, background 0.3s, transform 0.2s;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .download-btn:hover {
+            background: white;
+            color: #5f9ecf;
+            transform: scale(1.1);
+        }
+        .gallery-item:hover .download-btn {
+            opacity: 1;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
@@ -96,6 +122,9 @@
                         const captionHtml = item.judul ? `<div class="gallery-caption">${item.judul}</div>` : '';
                         
                         div.innerHTML = `
+                            <a href="${item.foto_url}" class="download-btn" download="Galeri_Kampungrapet" title="Download Gambar" target="_blank">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
                             <img src="${item.foto_url}" alt="${item.judul}">
                             ${captionHtml}
                         `;
