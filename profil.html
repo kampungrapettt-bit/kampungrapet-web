@@ -51,21 +51,34 @@
         <h1 style="text-align: center; font-size: 3rem; margin-bottom: 2rem;">Profil Dusun</h1>
         
         <div class="content-box">
-            <h2>Sejarah Singkat</h2>
-            <p>Keberadaan Desa Banyubiru memiliki akar sejarah panjang sejak era Kerajaan Islam Demak, Pajang, hingga Mataram Islam, di mana wilayah ini dikenal sebagai "Tanah Perdikan Banyubiru" atau daerah istimewa bebas pajak atas jasa besar para leluhurnya. Dalam linimasa sejarah tersebut, Dusun Kampung Rapet memegang peranan spiritual dan kultural yang sangat penting karena menjadi tempat bersemayamnya makam Ki Ageng Surodipoyono, tokoh luhur pembuka wilayah yang dihormati sebagai salah satu pilar pendiri awal Banyubiru. Ikatan sejarah ini menjadikan Kampung Rapet sebagai pusat pelestarian budaya, terbukti dari rutinnya pelaksanaan ritual adat seperti Sedekah Kubur, Mocoan Lontar Yusup, dan jamasan pusaka setiap bulan Sura. Nilai historis tersebut mengakar kuat pada karakter masyarakatnya hingga kini, di mana warga Kampung Rapet terus konsisten menjaga kerukunan dan semangat gotong royong yang erat—sesuai arti kata "rapet"—melalui tradisi Merti Dusun serta musyawarah kemasyarakatan yang aktif demi mewujudkan visi desa yang nyaman, maju, demokratif, dan berbudaya.</i></p>
+            <h2>Profile Dusun</h2>
+            <p style="font-weight: 600; font-style: italic; color: var(--primary-dark); margin-bottom: 1rem; font-size: 1.1rem;">Nyawiji dalam Kebersamaan, Lestari dalam Budaya, Tumbuh dalam Kemajuan.</p>
+            <p style="margin-bottom: 1rem;">Dusun Kampung Rapet merupakan salah satu dusun di wilayah Desa Banyubiru, Kecamatan Banyubiru, Kabupaten Semarang, Jawa Tengah. Berada di tengah lingkungan pedesaan yang asri dengan hamparan persawahan dan perbukitan, Kampung Rapet tumbuh sebagai bagian dari masyarakat Banyubiru yang menjunjung tinggi kebersamaan, gotong royong, dan nilai-nilai budaya lokal.</p>
+            <p style="margin-bottom: 1rem;">Kampung Rapet bukan hanya tentang tempat tinggal, tetapi tentang ruang bersama bagi masyarakat untuk berkarya, berbudaya, dan membangun masa depan. Kehidupan sosial masyarakat terus dirawat melalui berbagai kegiatan kemasyarakatan, kepemudaan, keagamaan, kesenian, hingga pelestarian tradisi dan budaya.</p>
+            <p style="margin-bottom: 1rem;">Dengan semangat kebersamaan dan keterlibatan seluruh elemen masyarakat, Kampung Rapet berkomitmen untuk terus berkembang menjadi dusun yang rukun, aktif, berbudaya, dan adaptif terhadap perkembangan zaman, tanpa meninggalkan nilai-nilai luhur yang telah diwariskan dari generasi ke generasi.</p>
+            <p style="font-weight: 600; font-style: italic;">Kampung Rapet - Nyawiji Lumantar Tradisi, Tumbuh Bersama untuk Masa Depan.</p>
         </div>
 
         <div class="content-box">
             <h2>Visi & Misi</h2>
             <p><strong>Visi:</strong></p>
-            <p>Mewujudkan Dusun Kampungrapet yang mandiri, sejahtera, dan berbudaya berbasis pada kearifan lokal.</p>
+            <p>"Mewujudkan Dusun Kampung Rapet yang Harmonis, Toleran, dan Berbudaya."</p>
             <br>
             <p><strong>Misi:</strong></p>
-            <ul>
-                <li style="margin-left: 1.5rem;">Meningkatkan kualitas sumber daya manusia melalui pendidikan dan pelatihan.</li>
-                <li style="margin-left: 1.5rem;">Mendorong pertumbuhan ekonomi warga melalui sektor pertanian dan UMKM.</li>
-                <li style="margin-left: 1.5rem;">Memelihara kerukunan antar warga dan melestarikan budaya gotong royong.</li>
-            </ul>
+            <ol>
+                <li style="margin-left: 1.5rem; margin-bottom: 0.5rem;">Meningkatkan persaudaraan, kebersamaan, dan semangat gotong royong antarwarga Dusun Kampung Rapet.</li>
+                <li style="margin-left: 1.5rem; margin-bottom: 0.5rem;">Mendorong terwujudnya kehidupan masyarakat yang rukun serta memperkuat toleransi antarumat beragama.</li>
+                <li style="margin-left: 1.5rem; margin-bottom: 0.5rem;">Melestarikan, mengembangkan, dan mengoptimalkan nilai-nilai tradisi serta budaya lokal sebagai identitas Dusun Kampung Rapet.</li>
+            </ol>
+        </div>
+
+        <div class="content-box">
+            <h2>Lembaga & Organisasi Dusun</h2>
+            <p style="margin-bottom: 1.5rem;">Dusun Kampungrapet memiliki berbagai organisasi dan kelompok masyarakat yang aktif bergerak di berbagai bidang. Klik pada kategori di bawah ini untuk melihat detailnya:</p>
+
+            <div id="lembaga-container">
+                <p style="text-align: center;">Memuat data lembaga...</p>
+            </div>
         </div>
 
         <div class="content-box">
@@ -183,6 +196,55 @@
             } catch (error) {
                 console.error("Error mengambil data UMKM:", error);
                 document.getElementById('umkm-container').innerHTML = '<p style="text-align: center; color: red;">Gagal memuat UMKM dari server.</p>';
+            }
+
+            // Fetch Lembaga & Organisasi
+            try {
+                const { data: list_lembaga, error } = await supabase.from('lembaga').select('*').order('kategori', { ascending: true }).order('created_at', { ascending: true });
+                if (error) throw error;
+                
+                const container = document.getElementById('lembaga-container');
+                container.innerHTML = '';
+                
+                if (list_lembaga && list_lembaga.length > 0) {
+                    // Kelompokkan berdasarkan kategori
+                    const grouped = {};
+                    list_lembaga.forEach(item => {
+                        if (!grouped[item.kategori]) {
+                            grouped[item.kategori] = [];
+                        }
+                        grouped[item.kategori].push(item.nama);
+                    });
+                    
+                    // Buat accordion untuk setiap kategori
+                    for (const kategori in grouped) {
+                        const details = document.createElement('details');
+                        details.className = 'accordion';
+                        
+                        const summary = document.createElement('summary');
+                        summary.textContent = kategori;
+                        
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'accordion-content';
+                        
+                        const list = document.createElement('ol');
+                        grouped[kategori].forEach(nama => {
+                            const li = document.createElement('li');
+                            li.textContent = nama;
+                            list.appendChild(li);
+                        });
+                        
+                        contentDiv.appendChild(list);
+                        details.appendChild(summary);
+                        details.appendChild(contentDiv);
+                        container.appendChild(details);
+                    }
+                } else {
+                    container.innerHTML = '<p style="text-align: center;">Belum ada data lembaga & organisasi.</p>';
+                }
+            } catch (error) {
+                console.error("Error mengambil data lembaga:", error);
+                document.getElementById('lembaga-container').innerHTML = '<p style="text-align: center; color: red;">Gagal memuat data dari server.</p>';
             }
         });
     </script>

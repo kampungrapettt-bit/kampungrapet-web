@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Lembaga & Organisasi - Admin Kampungrapet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5f9ecf;
+            --primary-dark: #4b80a8;
+            --bg-color: #f1f5f9;
+            --text-dark: #334155;
+            --white: #ffffff;
+            --border: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { background-color: var(--white); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .content-area { padding: 2rem 5%; flex-grow: 1; max-width: 1000px; margin: 0 auto; width: 100%; }
+        .page-title { font-size: 1.5rem; margin-bottom: 2rem; color: #0f172a; }
+        
+        .card { background-color: var(--white); border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 5px; outline: none; font-size: 1rem; }
+        .form-control:focus { border-color: var(--primary); }
+        .btn-submit { background-color: var(--primary); color: var(--white); border: none; padding: 0.75rem 2rem; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .btn-submit:hover { background-color: var(--primary-dark); }
+        
+        .btn-back { display: inline-block; margin-bottom: 1rem; color: var(--text-dark); text-decoration: none; font-weight: 500; }
+        .btn-back:hover { color: var(--primary); }
+        
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.95rem; }
+        .data-table th, .data-table td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; }
+        .data-table th { background-color: #f8fafc; font-weight: 600; color: #475569; }
+        
+        .btn-action { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.85rem; margin-right: 5px; margin-bottom: 5px; }
+        .btn-edit { background-color: #f59e0b; }
+        .btn-edit:hover { background-color: #d97706; }
+        .btn-delete { background-color: #ef4444; }
+        .btn-delete:hover { background-color: #dc2626; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="image/logo.jpeg" alt="Logo Dusun" style="height: 30px; border-radius: 5px;">
+            <strong>Admin Dusun</strong>
+        </div>
+        <a href="profil.html" target="_blank" style="color: var(--primary); text-decoration: none;">Lihat Halaman Profil <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    </header>
+
+    <main class="content-area">
+        <a href="admin_dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</a>
+        <h1 class="page-title">Kelola Lembaga & Organisasi Dusun</h1>
+        
+        <div class="card">
+            <form id="lembagaForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-group">
+                    <label for="kategori">Kategori</label>
+                    <select id="kategori" class="form-control" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="RT / RW">RT / RW</option>
+                        <option value="Posyandu">Posyandu</option>
+                        <option value="Kesenian">Kesenian</option>
+                        <option value="Keagamaan">Keagamaan</option>
+                        <option value="Olahraga">Olahraga</option>
+                        <option value="Kelompok Tani">Kelompok Tani</option>
+                        <option value="Kepemudaan">Kepemudaan</option>
+                        <option value="Lainnya">Lainnya...</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="kategoriLainnyaGroup" style="display: none;">
+                    <label for="kategoriLainnya">Nama Kategori Baru</label>
+                    <input type="text" id="kategoriLainnya" class="form-control" placeholder="Contoh: PKK">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nama">Nama Organisasi / Kelompok</label>
+                    <input type="text" id="nama" class="form-control" placeholder="Contoh: RW 03 atau Posyandu Lansia" required>
+                </div>
+                
+                <button type="submit" class="btn-submit"><i class="fa-solid fa-save"></i> Simpan Data</button>
+                <button type="button" class="btn-submit btn-edit" id="btnCancelEdit" style="display: none;" onclick="cancelEdit()">Batal Edit</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Daftar Lembaga & Organisasi</h2>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="5%">No</th>
+                            <th width="25%">Kategori</th>
+                            <th width="50%">Nama Organisasi</th>
+                            <th width="20%">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="4" style="text-align: center;">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let editId = null;
+
+        // Tampilkan input kategori baru jika "Lainnya" dipilih
+        document.getElementById('kategori').addEventListener('change', function() {
+            if (this.value === 'Lainnya') {
+                document.getElementById('kategoriLainnyaGroup').style.display = 'block';
+                document.getElementById('kategoriLainnya').required = true;
+            } else {
+                document.getElementById('kategoriLainnyaGroup').style.display = 'none';
+                document.getElementById('kategoriLainnya').required = false;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadData);
+
+        async function loadData() {
+            try {
+                const { data, error } = await supabase.from('lembaga').select('*').order('kategori', { ascending: true }).order('created_at', { ascending: true });
+                if (error) throw error;
+
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data lembaga</td></tr>';
+                    return;
+                }
+
+                data.forEach((item, index) => {
+                    const safeKategori = item.kategori.replace(/'/g, "\\'");
+                    const safeNama = item.nama.replace(/'/g, "\\'");
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><strong>${item.kategori}</strong></td>
+                            <td>${item.nama}</td>
+                            <td>
+                                <button class="btn-action btn-edit" onclick="editData('${item.id}', '${safeKategori}', '${safeNama}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteData('${item.id}')"><i class="fa-solid fa-trash"></i> Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Gagal memuat data:", err.message);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data</td></tr>';
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                let kategori = document.getElementById('kategori').value;
+                if (kategori === 'Lainnya') {
+                    kategori = document.getElementById('kategoriLainnya').value;
+                }
+                const nama = document.getElementById('nama').value;
+
+                if (editId) {
+                    const { error } = await supabase.from('lembaga').update({ kategori, nama }).eq('id', editId);
+                    if (error) throw error;
+                    alert('Data berhasil diperbarui!');
+                } else {
+                    const { error } = await supabase.from('lembaga').insert([{ kategori, nama }]);
+                    if (error) throw error;
+                    alert('Data berhasil ditambahkan!');
+                }
+
+                cancelEdit();
+                loadData();
+            } catch (err) {
+                alert('Gagal menyimpan data: ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function editData(id, kategori, nama) {
+            editId = id;
+            
+            const select = document.getElementById('kategori');
+            const options = Array.from(select.options).map(o => o.value);
+            
+            if (options.includes(kategori)) {
+                select.value = kategori;
+                document.getElementById('kategoriLainnyaGroup').style.display = 'none';
+            } else {
+                select.value = 'Lainnya';
+                document.getElementById('kategoriLainnyaGroup').style.display = 'block';
+                document.getElementById('kategoriLainnya').value = kategori;
+            }
+            
+            document.getElementById('nama').value = nama;
+            document.getElementById('btnCancelEdit').style.display = 'inline-block';
+            window.scrollTo(0, 0);
+        }
+
+        function cancelEdit() {
+            editId = null;
+            document.getElementById('lembagaForm').reset();
+            document.getElementById('kategoriLainnyaGroup').style.display = 'none';
+            document.getElementById('btnCancelEdit').style.display = 'none';
+        }
+
+        async function deleteData(id) {
+            if (!confirm('Yakin ingin menghapus data ini?')) return;
+            
+            try {
+                const { error } = await supabase.from('lembaga').delete().eq('id', id);
+                if (error) throw error;
+                loadData();
+            } catch (err) {
+                alert('Gagal menghapus data: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
