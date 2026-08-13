@@ -74,6 +74,7 @@
                 </div>
                 
                 <button type="submit" class="btn-submit"><i class="fa-solid fa-save"></i> Simpan Data</button>
+                <button type="button" class="btn-submit" id="btnCancelEdit" style="display: none; background-color: #f59e0b; margin-left: 5px;" onclick="cancelEdit()">Batal Edit</button>
             </form>
         </div>
 
@@ -178,7 +179,7 @@
                 }
 
                 event.target.reset();
-                editId = null;
+                cancelEdit();
                 await loadDayaTarik();
             } catch (err) {
                 showNotification(err.message, true);
@@ -192,8 +193,15 @@
             editId = id;
             document.getElementById('nama_wisata').value = nama;
             document.getElementById('deskripsi').value = desk;
+            document.getElementById('btnCancelEdit').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
             showNotification('Mode Edit aktif.\n(Biarkan "Pilih File" kosong jika tidak ingin mengganti foto yang lama)');
+        }
+
+        function cancelEdit() {
+            editId = null;
+            document.getElementById('dayaTarikForm').reset();
+            document.getElementById('btnCancelEdit').style.display = 'none';
         }
 
         async function hapusData(id) {
