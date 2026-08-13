@@ -29,6 +29,57 @@
             padding-bottom: 0.5rem;
             margin-bottom: 1.5rem;
         }
+        
+        /* Lembaga Grid Cards */
+        .lembaga-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .lembaga-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            color: #1f2937;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .lembaga-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary-light);
+        }
+        .lembaga-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+            color: var(--primary-dark);
+        }
+        .lembaga-card ol {
+            position: relative;
+            z-index: 2;
+            padding-left: 1.2rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .lembaga-card li {
+            margin-bottom: 0.35rem;
+        }
+        .lembaga-card i.watermark {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+            z-index: 1;
+            transform: rotate(-15deg);
+            color: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
@@ -216,29 +267,37 @@
                         grouped[item.kategori].push(item.nama);
                     });
                     
-                    // Buat accordion untuk setiap kategori
+                    const getCategoryTheme = (cat) => {
+                        cat = cat.toLowerCase();
+                        if (cat.includes('agama')) return { icon: 'fa-mosque' };
+                        if (cat.includes('tani')) return { icon: 'fa-seedling' };
+                        if (cat.includes('muda') || cat.includes('taruna')) return { icon: 'fa-users' };
+                        if (cat.includes('seni')) return { icon: 'fa-masks-theater' };
+                        if (cat.includes('rt') || cat.includes('rw')) return { icon: 'fa-house-chimney-user' };
+                        if (cat.includes('olah')) return { icon: 'fa-volleyball' };
+                        if (cat.includes('posyandu')) return { icon: 'fa-stethoscope' };
+                        return { icon: 'fa-sitemap' };
+                    };
+                    
+                    const grid = document.createElement('div');
+                    grid.className = 'lembaga-grid';
+                    
+                    // Buat grid card untuk setiap kategori
                     for (const kategori in grouped) {
-                        const details = document.createElement('details');
-                        details.className = 'accordion';
+                        const theme = getCategoryTheme(kategori);
+                        const card = document.createElement('div');
+                        card.className = 'lembaga-card';
                         
-                        const summary = document.createElement('summary');
-                        summary.textContent = kategori;
+                        let itemsHtml = grouped[kategori].map(nama => `<li>${nama}</li>`).join('');
                         
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'accordion-content';
-                        
-                        const list = document.createElement('ol');
-                        grouped[kategori].forEach(nama => {
-                            const li = document.createElement('li');
-                            li.textContent = nama;
-                            list.appendChild(li);
-                        });
-                        
-                        contentDiv.appendChild(list);
-                        details.appendChild(summary);
-                        details.appendChild(contentDiv);
-                        container.appendChild(details);
+                        card.innerHTML = `
+                            <i class="fa-solid ${theme.icon} watermark"></i>
+                            <h3>${kategori}</h3>
+                            <ol>${itemsHtml}</ol>
+                        `;
+                        grid.appendChild(card);
                     }
+                    container.appendChild(grid);
                 } else {
                     container.innerHTML = '<p style="text-align: center;">Belum ada data lembaga & organisasi.</p>';
                 }
