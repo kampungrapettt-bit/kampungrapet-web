@@ -41,7 +41,6 @@
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border: 1px solid var(--glass-border);
             border-radius: 15px;
-            padding: 2rem;
             color: #1f2937;
             position: relative;
             overflow: hidden;
@@ -53,16 +52,39 @@
             box-shadow: 0 8px 15px rgba(0,0,0,0.1);
             border-color: var(--primary-light);
         }
+        .lembaga-card summary {
+            padding: 2rem;
+            cursor: pointer;
+            list-style: none; /* Hide default arrow */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            outline: none;
+            position: relative;
+            z-index: 2;
+        }
+        .lembaga-card summary::-webkit-details-marker {
+            display: none;
+        }
         .lembaga-card h3 {
             font-size: 1.3rem;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 2;
+            margin: 0;
             color: var(--primary-dark);
         }
-        .lembaga-card ol {
+        .lembaga-card .arrow {
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            transition: transform 0.3s;
+        }
+        .lembaga-card[open] .arrow {
+            transform: rotate(180deg);
+        }
+        .lembaga-card .card-content {
+            padding: 0 2rem 2rem 2rem;
             position: relative;
             z-index: 2;
+        }
+        .lembaga-card ol {
             padding-left: 1.2rem;
             margin: 0;
             line-height: 1.6;
@@ -79,6 +101,34 @@
             z-index: 1;
             transform: rotate(-15deg);
             color: var(--primary-dark);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .content-section {
+                padding: 6rem 5% 3rem;
+            }
+            .content-box {
+                padding: 1.5rem;
+            }
+            .lembaga-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .lembaga-card summary {
+                padding: 1.5rem;
+            }
+            .lembaga-card .card-content {
+                padding: 0 1.5rem 1.5rem 1.5rem;
+            }
+            .lembaga-card h3 {
+                font-size: 1.15rem;
+            }
+            .lembaga-card i.watermark {
+                font-size: 6rem;
+                bottom: -15px;
+                right: -15px;
+            }
         }
     </style>
 </head>
@@ -285,15 +335,20 @@
                     // Buat grid card untuk setiap kategori
                     for (const kategori in grouped) {
                         const theme = getCategoryTheme(kategori);
-                        const card = document.createElement('div');
+                        const card = document.createElement('details');
                         card.className = 'lembaga-card';
                         
                         let itemsHtml = grouped[kategori].map(nama => `<li>${nama}</li>`).join('');
                         
                         card.innerHTML = `
                             <i class="fa-solid ${theme.icon} watermark"></i>
-                            <h3>${kategori}</h3>
-                            <ol>${itemsHtml}</ol>
+                            <summary>
+                                <h3>${kategori}</h3>
+                                <i class="fa-solid fa-chevron-down arrow"></i>
+                            </summary>
+                            <div class="card-content">
+                                <ol>${itemsHtml}</ol>
+                            </div>
                         `;
                         grid.appendChild(card);
                     }
