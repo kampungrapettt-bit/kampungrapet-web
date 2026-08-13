@@ -279,7 +279,14 @@
                             imgHtml = `<img src="${item.foto_url}" alt="${item.nama_usaha}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; flex-shrink: 0;">`;
                         }
 
-                        let contactHtml = item.kontak ? `<p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--primary-color);"><i class="fa-solid fa-phone"></i> ${item.kontak}</p>` : '';
+                        let contactHtml = '';
+                        if (item.kontak) {
+                            let cleanNumber = item.kontak.replace(/[^0-9]/g, '');
+                            if (cleanNumber.startsWith('0')) {
+                                cleanNumber = '62' + cleanNumber.substring(1);
+                            }
+                            contactHtml = `<a href="https://wa.me/${cleanNumber}" target="_blank" style="margin-top: 0.5rem; font-size: 0.9rem; color: #25D366; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-weight: bold;"><i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Hubungi via WhatsApp (${item.kontak})</a>`;
+                        }
 
                         div.innerHTML = `
                             ${imgHtml}

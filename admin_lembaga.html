@@ -96,14 +96,13 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th width="5%">No</th>
-                            <th width="25%">Kategori</th>
-                            <th width="50%">Nama Organisasi</th>
-                            <th width="20%">Aksi</th>
+                            <th width="10%">No</th>
+                            <th width="65%">Nama Organisasi</th>
+                            <th width="25%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <tr><td colspan="4" style="text-align: center;">Memuat data...</td></tr>
+                        <tr><td colspan="3" style="text-align: center;">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -131,33 +130,75 @@
                 const { data, error } = await supabase.from('lembaga').select('*').order('kategori', { ascending: true }).order('created_at', { ascending: true });
                 if (error) throw error;
 
+                // Update dropdown kategori dengan kategori unik dari database
+                const selectKategori = document.getElementById('kategori');
+                
+                // Bersihkan opsi dinamis sebelumnya untuk menghindari duplikasi saat refresh
+                Array.from(selectKategori.options).forEach(opt => {
+                    if (opt.getAttribute('data-dynamic') === 'true') {
+                        opt.remove();
+                    }
+                });
+
+                const existingOptions = Array.from(selectKategori.options).map(opt => opt.value);
+                const uniqueKategori = [...new Set(data.map(item => item.kategori))];
+                
+                uniqueKategori.forEach(kategori => {
+                    if (!existingOptions.includes(kategori) && kategori !== '') {
+                        const newOption = document.createElement('option');
+                        newOption.value = kategori;
+                        newOption.textContent = kategori;
+                        newOption.setAttribute('data-dynamic', 'true');
+                        selectKategori.insertBefore(newOption, selectKategori.options[selectKategori.options.length - 1]);
+                    }
+                });
+
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data lembaga</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Belum ada data lembaga</td></tr>';
                     return;
                 }
 
-                data.forEach((item, index) => {
-                    const safeKategori = item.kategori.replace(/'/g, "\\'");
-                    const safeNama = item.nama.replace(/'/g, "\\'");
-                    
+                // Kelompokkan data berdasarkan kategori
+                const grouped = {};
+                data.forEach(item => {
+                    if (!grouped[item.kategori]) {
+                        grouped[item.kategori] = [];
+                    }
+                    grouped[item.kategori].push(item);
+                });
+
+                let globalIndex = 1;
+                for (const kategori in grouped) {
+                    // Header kategori
                     tbody.innerHTML += `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td><strong>${item.kategori}</strong></td>
-                            <td>${item.nama}</td>
-                            <td>
-                                <button class="btn-action btn-edit" onclick="editData('${item.id}', '${safeKategori}', '${safeNama}')"><i class="fa-solid fa-pen"></i> Edit</button>
-                                <button class="btn-action btn-delete" onclick="deleteData('${item.id}')"><i class="fa-solid fa-trash"></i> Hapus</button>
-                            </td>
+                        <tr style="background-color: #f1f5f9;">
+                            <td colspan="3" style="padding-left: 1.5rem;"><strong style="color: var(--primary-dark); font-size: 1.1rem;">${kategori}</strong></td>
                         </tr>
                     `;
-                });
+
+                    // Item di dalam kategori tersebut
+                    grouped[kategori].forEach(item => {
+                        const safeKategori = item.kategori.replace(/'/g, "\\'");
+                        const safeNama = item.nama.replace(/'/g, "\\'");
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${globalIndex++}</td>
+                                <td>${item.nama}</td>
+                                <td>
+                                    <button class="btn-action btn-edit" onclick="editData('${item.id}', '${safeKategori}', '${safeNama}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                                    <button class="btn-action btn-delete" onclick="deleteData('${item.id}')"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
             } catch (err) {
                 console.error("Gagal memuat data:", err.message);
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat data</td></tr>';
             }
         }
 
