@@ -254,6 +254,7 @@ footer p {
 /* Responsive */
 @media (max-width: 768px) {
   nav {
+    position: absolute; /* Allows navbar to scroll away on mobile */
     flex-direction: column;
     padding: 1rem 2%;
     gap: 1rem;
