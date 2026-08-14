@@ -91,27 +91,19 @@ nav {
 .nav-links a {
   font-weight: 500;
   color: var(--text-dark);
-  position: relative;
-  padding: 0.5rem 0;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: all 0.3s ease;
 }
 
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: var(--primary-color);
-  transition: width 0.3s ease;
-}
-
-.nav-links a:hover::after, .nav-links a.active::after {
-  width: 100%;
+.nav-links a:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
 }
 
 .nav-links a.active {
-  color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
 }
 
 /* Hero Section */
