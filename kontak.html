@@ -118,7 +118,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const { data, error } = await supabase.from('kontak_dusun').select('*').eq('id', 1).single();
+                const { data, error } = await supabase.from('kontak_dusun').select('*').eq('id', 1).maybeSingle();
                 if (error) throw error;
                 if (data) {
                     document.getElementById('pub_alamat').innerText = data.alamat;
@@ -132,9 +132,11 @@
                         cleanNumber = '62' + cleanNumber.substring(1);
                     }
                     document.getElementById('pub_wa').href = `https://wa.me/${cleanNumber}`;
+                } else {
+                    throw new Error("Data kontak kosong di database.");
                 }
             } catch (error) {
-                console.error("Gagal memuat kontak dari database:", error);
+                console.warn("Info:", error.message);
                 // Fallback text if database fails or hasn't been set up yet
                 document.getElementById('pub_alamat').innerText = "Kampung Rapet, Banyubiru, Kec. Banyubiru, Kabupaten Semarang";
                 document.getElementById('pub_maps').href = "https://maps.app.goo.gl/Zke1PtgCEeEs2VCh8";
