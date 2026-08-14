@@ -144,6 +144,7 @@
             <li><a href="profil.html" class="active">Profil</a></li>
             <li><a href="berita.html">Berita</a></li>
             <li><a href="galeri.html">Galeri</a></li>
+            <li><a href="umkm.html">UMKM</a></li>
             <li><a href="kontak.html">Kontak</a></li>
         </ul>
     </nav>
@@ -193,13 +194,6 @@
             <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-light);"><i>*Data dikelola langsung oleh perangkat dusun secara berkala.</i></p>
         </div>
 
-        <div class="content-box">
-            <h2>Potensi UMKM Dusun</h2>
-            <p>Dusun Kampung Rapet memiliki berbagai potensi Usaha Mikro, Kecil, dan Menengah (UMKM) yang menjadi motor penggerak ekonomi warga. Berikut adalah beberapa usaha unggulan warga kami:</p>
-            <div id="umkm-container" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
-                <p style="text-align: center;">Memuat data UMKM...</p>
-            </div>
-        </div>
     </main>
 
     <!-- Footer -->
@@ -253,56 +247,6 @@
             } catch (error) {
                 console.error("Error mengambil data demografi:", error);
                 document.getElementById('demografi-container').innerHTML = '<p style="text-align: center; color: red; width: 100%;">Gagal memuat demografi dari server.</p>';
-            }
-
-            // Fetch UMKM
-            try {
-                const { data: list_umkm, error } = await supabase.from('umkm').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                
-                const container = document.getElementById('umkm-container');
-                container.innerHTML = '';
-                
-                if (list_umkm && list_umkm.length > 0) {
-                    list_umkm.forEach(item => {
-                        const div = document.createElement('div');
-                        div.style.display = 'flex';
-                        div.style.gap = '1.5rem';
-                        div.style.alignItems = 'center';
-                        div.style.borderBottom = '1px solid var(--border-color)';
-                        div.style.paddingBottom = '1rem';
-                        div.style.flexWrap = 'wrap';
-
-                        let imgHtml = '';
-                        if (item.foto_url) {
-                            imgHtml = `<img src="${item.foto_url}" alt="${item.nama_usaha}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; flex-shrink: 0;">`;
-                        }
-
-                        let contactHtml = '';
-                        if (item.kontak) {
-                            let cleanNumber = item.kontak.replace(/[^0-9]/g, '');
-                            if (cleanNumber.startsWith('0')) {
-                                cleanNumber = '62' + cleanNumber.substring(1);
-                            }
-                            contactHtml = `<a href="https://wa.me/${cleanNumber}" target="_blank" style="margin-top: 0.5rem; font-size: 0.9rem; color: #25D366; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-weight: bold;"><i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Hubungi via WhatsApp (${item.kontak})</a>`;
-                        }
-
-                        div.innerHTML = `
-                            ${imgHtml}
-                            <div>
-                                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">${item.nama_usaha}</h3>
-                                <p style="font-size: 0.95rem; color: var(--text-light);">${item.deskripsi}</p>
-                                ${contactHtml}
-                            </div>
-                        `;
-                        container.appendChild(div);
-                    });
-                } else {
-                    container.innerHTML = '<p>Belum ada data UMKM.</p>';
-                }
-            } catch (error) {
-                console.error("Error mengambil data UMKM:", error);
-                document.getElementById('umkm-container').innerHTML = '<p style="text-align: center; color: red;">Gagal memuat UMKM dari server.</p>';
             }
 
             // Fetch Lembaga & Organisasi

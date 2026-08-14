@@ -146,7 +146,19 @@
             </a>
         </div>
         
-        <div style="text-align: center;">
+        <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: white; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #0f172a;"><i class="fa-solid fa-lock"></i> Keamanan Akun</h2>
+            <form id="passwordForm" onsubmit="changePassword(event)" style="max-width: 400px; margin: 0 auto; text-align: left;">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Password Baru</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="Minimal 6 karakter" required style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 5px;">
+                </div>
+                <button type="submit" style="background: #10b981; color: white; border: none; padding: 0.75rem; border-radius: 5px; width: 100%; font-weight: 600; cursor: pointer;">Update Password</button>
+                <p id="pwd-msg" style="margin-top: 1rem; font-size: 0.9rem; text-align: center;"></p>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
             <button onclick="logoutAdmin()" class="logout-btn" style="border: none; cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-right-from-bracket"></i> Keluar dari Sistem</button>
         </div>
     </main>
@@ -165,6 +177,37 @@
             if(confirm('Yakin ingin keluar dari sistem?')) {
                 await supabase.auth.signOut();
                 window.location.href = 'admin_login.html';
+            }
+        }
+
+        // Logika Ganti Password
+        async function changePassword(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const msg = document.getElementById('pwd-msg');
+            const newPwd = document.getElementById('newPassword').value;
+            
+            if(newPwd.length < 6) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Password minimal 6 karakter.";
+                return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabase.auth.updateUser({ password: newPwd });
+                if (error) throw error;
+                msg.style.color = '#10b981';
+                msg.innerText = "Password berhasil diubah!";
+                document.getElementById('newPassword').value = '';
+            } catch (err) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Gagal: " + err.message;
+            } finally {
+                btn.innerHTML = 'Update Password';
+                btn.disabled = false;
             }
         }
     </script>
