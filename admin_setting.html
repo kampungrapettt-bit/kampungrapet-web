@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Akun - Admin Kampung Rapet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5f9ecf;
+            --bg-color: #f1f5f9;
+            --text-dark: #334155;
+            --white: #ffffff;
+            --border: #e2e8f0;
+        }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: var(--bg-color); color: var(--text-dark);
+        }
+        .topbar {
+            background-color: var(--white); padding: 1rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .content-area {
+            padding: 2rem 5%; max-width: 600px; margin: 0 auto;
+        }
+        .page-title {
+            font-size: 1.5rem; margin-bottom: 2rem; color: #0f172a;
+        }
+        .card {
+            background-color: var(--white); border-radius: 10px; padding: 2.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block; font-weight: 500; margin-bottom: 0.5rem;
+        }
+        .form-control {
+            width: 100%; padding: 0.75rem; border: 1px solid var(--border);
+            border-radius: 5px; outline: none; font-size: 1rem;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+        .btn-submit {
+            background-color: #10b981; color: var(--white);
+            border: none; padding: 0.8rem; border-radius: 5px;
+            font-size: 1rem; cursor: pointer; transition: 0.2s; font-weight: 600; width: 100%;
+        }
+        .btn-submit:hover {
+            background-color: #059669;
+        }
+        .btn-back {
+            display: inline-block; margin-bottom: 1rem; color: var(--text-dark); text-decoration: none; font-weight: 500;
+        }
+        .btn-back:hover {
+            color: var(--primary);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="image/logo.jpeg" alt="Logo Dusun" style="height: 30px; border-radius: 5px;">
+            <strong>Admin Dusun</strong>
+        </div>
+        <a href="index.html" target="_blank" style="color: var(--primary); text-decoration: none;">Lihat Website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    </header>
+
+    <main class="content-area">
+        <a href="admin_dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</a>
+        <h1 class="page-title"><i class="fa-solid fa-shield-halved"></i> Pengaturan Akun Admin</h1>
+
+        <div class="card" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;"><i class="fa-solid fa-address-book"></i> Info Kontak Website</h2>
+            <form id="kontakForm" onsubmit="saveKontak(event)">
+                <div class="form-group">
+                    <label>Alamat Balai Dusun</label>
+                    <textarea id="val_alamat" class="form-control" rows="3" placeholder="Contoh: Kampung Rapet, Kec. Banyubiru..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Link Google Maps</label>
+                    <input type="url" id="val_maps" class="form-control" placeholder="https://maps.app.goo.gl/..." required>
+                </div>
+                <div class="form-group">
+                    <label>Email Resmi</label>
+                    <input type="email" id="val_email" class="form-control" placeholder="email@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp Resmi</label>
+                    <input type="text" id="val_wa" class="form-control" placeholder="Contoh: 08123456789 (Bisa pakai awalan 0 atau 62)" required>
+                </div>
+                <button type="submit" class="btn-submit" id="btnSimpanKontak"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan Info Kontak</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;">Ganti Password</h2>
+            <form id="passwordForm" onsubmit="changePassword(event)">
+                <div class="form-group">
+                    <label>Password Baru</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="Masukkan password baru (minimal 6 karakter)" required>
+                </div>
+                <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Password Baru</button>
+                <p id="pwd-msg" style="margin-top: 1.5rem; font-size: 0.95rem; text-align: center; font-weight: 500;"></p>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'admin_login.html';
+            } else {
+                // Tampilkan info kontak
+                fetchKontak();
+            }
+        });
+
+        async function fetchKontak() {
+            try {
+                const { data, error } = await supabase.from('kontak_dusun').select('*').eq('id', 1).single();
+                if (error) throw error;
+                if (data) {
+                    document.getElementById('val_alamat').value = data.alamat;
+                    document.getElementById('val_maps').value = data.link_maps;
+                    document.getElementById('val_email').value = data.email;
+                    document.getElementById('val_wa').value = data.nomor_wa;
+                }
+            } catch (error) {
+                console.error("Gagal memuat kontak:", error.message);
+            }
+        }
+
+        async function saveKontak(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSimpanKontak');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            const updates = {
+                alamat: document.getElementById('val_alamat').value,
+                link_maps: document.getElementById('val_maps').value,
+                email: document.getElementById('val_email').value,
+                nomor_wa: document.getElementById('val_wa').value,
+                updated_at: new Date()
+            };
+
+            try {
+                const { error } = await supabase.from('kontak_dusun').update(updates).eq('id', 1);
+                if (error) throw error;
+                alert('Informasi Kontak Website berhasil diperbarui!');
+            } catch (err) {
+                alert('Gagal menyimpan kontak: ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function changePassword(e) {
+            e.preventDefault();
+            
+            // Tambahkan konfirmasi ganti password
+            if(!confirm('Apakah Anda yakin ingin mengubah password admin ini? Pastikan Anda mengingat password yang baru agar tidak terkunci!')) {
+                return;
+            }
+
+            const btn = e.target.querySelector('button');
+            const msg = document.getElementById('pwd-msg');
+            const newPwd = document.getElementById('newPassword').value;
+            
+            if(newPwd.length < 6) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Password minimal harus 6 karakter.";
+                return;
+            }
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabase.auth.updateUser({ password: newPwd });
+                if (error) throw error;
+                msg.style.color = '#10b981';
+                msg.innerText = "Berhasil! Password Anda telah diubah.";
+                document.getElementById('newPassword').value = '';
+            } catch (err) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Gagal mengubah password: " + err.message;
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

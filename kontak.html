@@ -82,8 +82,8 @@
                     <i class="fa-solid fa-map-location-dot"></i>
                     <div>
                         <strong>Alamat Balai Dusun:</strong><br>
-                        Kampung Rapet, Banyubiru, Kec. Banyubiru, Kabupaten Semarang, Jawa Tengah 50664<br>
-                        <a href="https://maps.app.goo.gl/Zke1PtgCEeEs2VCh8" target="_blank" style="color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; font-weight: 500;">
+                        <span id="pub_alamat">Memuat alamat...</span><br>
+                        <a id="pub_maps" href="#" target="_blank" style="color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; font-weight: 500;">
                             <i class="fa-solid fa-map"></i> Buka di Google Maps <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
                         </a>
                     </div>
@@ -92,14 +92,14 @@
                     <i class="fa-solid fa-envelope"></i>
                     <div>
                         <strong>Email Resmi:</strong><br>
-                        <a href="mailto:pemudakampungrapet@gmail.com" style="color: var(--text-dark); text-decoration: none; font-weight: 500;">pemudakampungrapet@gmail.com</a>
+                        <a id="pub_email" href="#" style="color: var(--text-dark); text-decoration: none; font-weight: 500;">Memuat email...</a>
                     </div>
                 </div>
                 <div class="contact-item">
                     <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
                     <div>
                         <strong>WhatsApp Resmi:</strong><br>
-                        <a href="https://wa.me/6285998055666" target="_blank" style="color: var(--text-dark); text-decoration: none; font-weight: 500;">+62 859-9805-5666</a>
+                        <a id="pub_wa" href="#" target="_blank" style="color: var(--text-dark); text-decoration: none; font-weight: 500;">Memuat nomor...</a>
                     </div>
                 </div>
             </div>
@@ -113,5 +113,37 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const { data, error } = await supabase.from('kontak_dusun').select('*').eq('id', 1).single();
+                if (error) throw error;
+                if (data) {
+                    document.getElementById('pub_alamat').innerText = data.alamat;
+                    document.getElementById('pub_maps').href = data.link_maps;
+                    document.getElementById('pub_email').innerText = data.email;
+                    document.getElementById('pub_email').href = `mailto:${data.email}`;
+                    document.getElementById('pub_wa').innerText = data.nomor_wa;
+                    
+                    let cleanNumber = data.nomor_wa.replace(/[^0-9]/g, '');
+                    if (cleanNumber.startsWith('0')) {
+                        cleanNumber = '62' + cleanNumber.substring(1);
+                    }
+                    document.getElementById('pub_wa').href = `https://wa.me/${cleanNumber}`;
+                }
+            } catch (error) {
+                console.error("Gagal memuat kontak dari database:", error);
+                // Fallback text if database fails or hasn't been set up yet
+                document.getElementById('pub_alamat').innerText = "Kampung Rapet, Banyubiru, Kec. Banyubiru, Kabupaten Semarang";
+                document.getElementById('pub_maps').href = "https://maps.app.goo.gl/Zke1PtgCEeEs2VCh8";
+                document.getElementById('pub_email').innerText = "pemudakampungrapet@gmail.com";
+                document.getElementById('pub_email').href = "mailto:pemudakampungrapet@gmail.com";
+                document.getElementById('pub_wa').innerText = "+62 859-9805-5666";
+                document.getElementById('pub_wa').href = "https://wa.me/6285998055666";
+            }
+        });
+    </script>
 </body>
 </html>
