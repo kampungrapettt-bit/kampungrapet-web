@@ -255,7 +255,7 @@ footer p {
 @media (max-width: 768px) {
   nav {
     flex-direction: column;
-    padding: 1rem;
+    padding: 1rem 0; /* Remove horizontal padding from parent */
     gap: 1rem;
   }
   .nav-links {
@@ -267,7 +267,7 @@ footer p {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.5rem;
+    padding: 0 1rem 0.5rem 1rem; /* Add padding here so it scrolls with items */
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
