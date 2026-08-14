@@ -105,9 +105,10 @@
         <div class="card">
             <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;">Ganti Password</h2>
             <form id="passwordForm" onsubmit="changePassword(event)">
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label>Password Baru</label>
-                    <input type="password" id="newPassword" class="form-control" placeholder="Masukkan password baru (minimal 6 karakter)" required>
+                    <input type="password" id="newPassword" class="form-control" placeholder="Masukkan password baru (minimal 6 karakter)" required style="padding-right: 40px;">
+                    <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 15px; top: 40px; cursor: pointer; color: var(--text-light);" onclick="togglePasswordVisibility()"></i>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Password Baru</button>
                 <p id="pwd-msg" style="margin-top: 1.5rem; font-size: 0.95rem; text-align: center; font-weight: 500;"></p>
@@ -203,6 +204,21 @@
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('newPassword');
+            const toggleIcon = document.getElementById('togglePassword');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
             }
         }
     </script>
