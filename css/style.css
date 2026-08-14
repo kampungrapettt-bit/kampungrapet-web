@@ -254,10 +254,16 @@ footer p {
 /* Responsive */
 @media (max-width: 768px) {
   nav {
-    position: absolute; /* Allows navbar to scroll away on mobile */
+    position: static; /* Let it push content down naturally */
     flex-direction: column;
     padding: 1rem 2%;
     gap: 1rem;
+  }
+  .content-section {
+    padding-top: 2rem !important; /* Override hardcoded 8rem in HTML files */
+  }
+  header.hero {
+    margin-top: 0; /* Remove top margin meant for fixed navbar */
   }
   .nav-links {
     display: flex;
