@@ -96,9 +96,28 @@
         <a href="admin_dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</a>
         <h1 class="page-title">Tambah Foto ke Galeri</h1>
         
+        <!-- Kelola Folder -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Kelola Folder / Kategori</h2>
+            <form id="kategoriForm" onsubmit="handleKategoriSubmit(event)" style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                <input type="text" id="nama_kategori" class="form-control" placeholder="Nama Folder Baru (misal: Kerja Bakti)" required>
+                <button type="submit" class="btn-submit" style="white-space: nowrap;"><i class="fa-solid fa-folder-plus"></i> Tambah</button>
+            </form>
+            <div id="kategoriList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <span style="font-size: 0.9rem; color: #64748b;">Memuat folder...</span>
+            </div>
+        </div>
+
         <div class="card">
             <!-- Form Terintegrasi Supabase -->
             <form id="galeriForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-group">
+                    <label for="kategori_id">Pilih Folder</label>
+                    <select id="kategori_id" class="form-control">
+                        <option value="">-- Tidak Masuk Folder Mana Pun --</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="judul_foto">Judul / Caption Foto</label>
                     <input type="text" id="judul_foto" class="form-control" placeholder="Contoh: Kegiatan Kerja Bakti Warga..." required>
@@ -125,6 +144,7 @@
                             <th style="width: 50px;">No</th>
                             <th>Foto</th>
                             <th>Judul / Caption</th>
+                            <th>Folder</th>
                             <th style="width: 200px;">Aksi</th>
                         </tr>
                     </thead>
@@ -156,11 +176,78 @@
     <script>
         let editId = null;
 
-        document.addEventListener('DOMContentLoaded', loadGaleri);
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadKategori();
+            await loadGaleri();
+        });
+
+        async function loadKategori() {
+            try {
+                const { data, error } = await supabase.from('kategori_galeri').select('*').order('created_at', { ascending: true });
+                if (error) throw error;
+                
+                const categories = data || [];
+                const list = document.getElementById('kategoriList');
+                list.innerHTML = '';
+                if(categories.length === 0) {
+                    list.innerHTML = '<span style="font-size: 0.9rem; color: #64748b;">Belum ada folder.</span>';
+                } else {
+                    categories.forEach(c => {
+                        list.innerHTML += `<span style="background: var(--bg-color); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border);">
+                            <i class="fa-solid fa-folder"></i> ${c.nama_kategori}
+                            <i class="fa-solid fa-xmark" style="cursor: pointer; color: red;" onclick="hapusKategori('${c.id}')" title="Hapus"></i>
+                        </span>`;
+                    });
+                }
+                
+                const select = document.getElementById('kategori_id');
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">-- Tidak Masuk Folder Mana Pun --</option>';
+                categories.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = c.nama_kategori;
+                    select.appendChild(option);
+                });
+                select.value = currentValue;
+            } catch (err) {
+                console.error("Gagal memuat kategori:", err.message);
+            }
+        }
+
+        async function handleKategoriSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('nama_kategori');
+            const nama_kategori = input.value.trim();
+            if(!nama_kategori) return;
+            
+            try {
+                const { error } = await supabase.from('kategori_galeri').insert([{ nama_kategori }]);
+                if (error) throw error;
+                input.value = '';
+                showNotification('Folder berhasil ditambahkan!');
+                await loadKategori();
+            } catch (err) {
+                showNotification('Gagal: ' + err.message, true);
+            }
+        }
+
+        async function hapusKategori(id) {
+            if(!confirm('Yakin ingin menghapus folder ini? Foto di dalamnya tidak akan terhapus, hanya lepas dari folder.')) return;
+            try {
+                const { error } = await supabase.from('kategori_galeri').delete().eq('id', id);
+                if (error) throw error;
+                showNotification('Folder berhasil dihapus!');
+                await loadKategori();
+                await loadGaleri();
+            } catch (err) {
+                showNotification('Gagal menghapus: ' + err.message, true);
+            }
+        }
 
         async function loadGaleri() {
             try {
-                const { data, error } = await supabase.from('galeri').select('*').order('created_at', { ascending: false });
+                const { data, error } = await supabase.from('galeri').select('*, kategori_galeri(nama_kategori)').order('created_at', { ascending: false });
                 if (error) throw error;
 
                 const tbody = document.querySelector('.data-table tbody');
@@ -173,14 +260,17 @@
 
                 data.forEach((item, index) => {
                     const judul = item.judul ? item.judul.replace(/'/g, "\\'") : '';
+                    const nama_folder = item.kategori_galeri ? item.kategori_galeri.nama_kategori : '-';
+                    const kat_id = item.kategori_id || '';
                     
                     tbody.innerHTML += `
                         <tr>
                             <td>${index + 1}</td>
                             <td><img src="${item.foto_url}" style="height: 50px; width: 80px; border-radius: 5px; object-fit: cover;"></td>
                             <td>${item.judul}</td>
+                            <td><span style="background: #e2e8f0; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;"><i class="fa-solid fa-folder"></i> ${nama_folder}</span></td>
                             <td>
-                                <button class="btn-action btn-edit" onclick="editData('${item.id}', '${judul}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                                <button class="btn-action btn-edit" onclick="editData('${item.id}', '${judul}', '${kat_id}')"><i class="fa-solid fa-pen"></i> Edit</button>
                                 <button class="btn-action btn-delete" onclick="hapusData('${item.id}')"><i class="fa-solid fa-trash"></i> Hapus</button>
                             </td>
                         </tr>
@@ -200,13 +290,14 @@
 
             try {
                 const judul = document.getElementById('judul_foto').value;
+                const kategori_id = document.getElementById('kategori_id').value || null;
                 const fileInput = document.getElementById('file_foto');
                 
                 let foto_url = null;
 
                 if (fileInput && fileInput.files.length > 0) {
                     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengompres Foto...';
-                    const compressedFile = await compressImage(fileInput.files[0], 1200); // Kualitas HD
+                    const compressedFile = await compressImage(fileInput.files[0], 1200);
                     
                     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengunggah...';
                     foto_url = await uploadImage(compressedFile, 'galeri');
@@ -217,14 +308,14 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan Database...';
 
                 if (editId) {
-                    const updates = { judul };
+                    const updates = { judul, kategori_id };
                     if (foto_url) updates.foto_url = foto_url; 
 
                     const { error } = await supabase.from('galeri').update(updates).eq('id', editId);
                     if (error) throw error;
                     showNotification('Data galeri berhasil diperbarui!');
                 } else {
-                    const { error } = await supabase.from('galeri').insert([{ judul, foto_url }]);
+                    const { error } = await supabase.from('galeri').insert([{ judul, foto_url, kategori_id }]);
                     if (error) throw error;
                     showNotification('Foto berhasil ditambahkan ke galeri!');
                 }
@@ -240,9 +331,10 @@
             }
         }
 
-        function editData(id, judul) {
+        function editData(id, judul, katId) {
             editId = id;
             document.getElementById('judul_foto').value = judul;
+            document.getElementById('kategori_id').value = katId;
             document.getElementById('btnCancelEdit').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
             showNotification('Mode Edit aktif.\n(Biarkan "Pilih File" kosong jika tidak ingin mengganti foto yang lama)');
@@ -251,6 +343,7 @@
         function cancelEdit() {
             editId = null;
             document.getElementById('galeriForm').reset();
+            document.getElementById('kategori_id').value = "";
             document.getElementById('btnCancelEdit').style.display = 'none';
         }
 
