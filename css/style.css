@@ -255,28 +255,19 @@ footer p {
 @media (max-width: 768px) {
   nav {
     flex-direction: column;
-    padding: 1rem 0; /* Remove horizontal padding from parent */
+    padding: 1rem 2%;
     gap: 1rem;
   }
   .nav-links {
     display: flex;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.5rem;
-    font-size: 0.9rem;
     width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 1rem 0.5rem 1rem; /* Add padding here so it scrolls with items */
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .nav-links::-webkit-scrollbar {
-    display: none;
   }
   .nav-links a {
-    white-space: nowrap;
-    flex-shrink: 0;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
   }
   header.hero h1 {
     font-size: 2.5rem;
