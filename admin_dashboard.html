@@ -110,7 +110,7 @@
 
     <main class="content-area">
         <div class="welcome-text">
-            <h1>Selamat Datang, Admin</h1>
+            <h1 id="welcome-title">Selamat Datang, Admin</h1>
             <p>Pilih menu di bawah untuk mengelola konten website Kampung Rapet.</p>
         </div>
 
@@ -162,6 +162,24 @@
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
                 window.location.href = 'admin_login.html';
+            } else {
+                // Ekstrak username dari email
+                const email = session.user.email;
+                let username = email;
+                
+                if (email.includes('.kampungrapet@gmail.com')) {
+                    username = email.replace('.kampungrapet@gmail.com', '');
+                } else if (email.includes('@admin.local')) {
+                    username = email.replace('@admin.local', '');
+                } else if (email.includes('@admin.kampungrapet.com')) {
+                    username = email.replace('@admin.kampungrapet.com', '');
+                } else if (email.includes('@')) {
+                    username = email.split('@')[0];
+                }
+                
+                // Kapitalisasi huruf pertama
+                const capitalizedUsername = username.charAt(0).toUpperCase() + username.slice(1);
+                document.getElementById('welcome-title').innerText = `Selamat Datang, ${capitalizedUsername}`;
             }
         });
 
