@@ -125,9 +125,8 @@
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
-            // Trik: Supabase butuh format email, jadi kita tambahkan domain palsu di belakang username
-            // Contoh: 'doni' menjadi 'doni@admin.local'
-            const emailFormat = `${username}@admin.local`;
+            // Kita menambahkan suffix @admin.kampungrapet.com di belakang layar agar sistem otentikasi Supabase menganggapnya sebagai email valid.
+            const emailFormat = `${username}@admin.kampungrapet.com`;
 
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({
