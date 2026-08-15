@@ -66,7 +66,107 @@
         #scrollTopBtn:hover {
             background-color: var(--primary-dark);
         }
-    </style>
+        
+        /* Grid Layout & Cards */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .news-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .news-thumbnail {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background-color: #f1f5f9;
+        }
+        
+        .news-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .news-category {
+            background-color: #f97316;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            align-self: flex-start;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .news-title {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 3rem auto;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+        
+        .search-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .search-btn:hover {
+            background-color: var(--primary-dark);
+        }
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
 </head>
@@ -85,10 +185,17 @@
     </nav>
 
     <main class="content-section">
-        <h1 style="text-align: center; font-size: 3rem; margin-bottom: 2rem;">Berita & Kegiatan</h1>
+        <h1 style="text-align: center; font-size: 3rem; margin-bottom: 1rem;">Berita & Kegiatan</h1>
+        <p style="text-align: center; color: var(--text-light); margin-bottom: 2rem;">Pantau terus informasi terbaru dan kegiatan seru di Dusun Kampung Rapet.</p>
         
-        <div id="berita-container">
-            <p style="text-align: center;">Memuat berita...</p>
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari berita berdasarkan judul..." onkeyup="if(event.key === 'Enter') filterBerita()">
+            <button class="search-btn" onclick="filterBerita()"><i class="fa-solid fa-magnifying-glass"></i> Cari</button>
+        </div>
+
+        <div id="berita-grid" class="news-grid">
+            <p style="text-align: center; grid-column: 1 / -1;">Memuat berita...</p>
         </div>
     </main>
 
@@ -104,72 +211,83 @@
     </button>
 
     <script>
+        let allBerita = [];
+
         // Ambil berita dari Supabase dan tampilkan ke halaman
         document.addEventListener('DOMContentLoaded', async () => {
-            const container = document.getElementById('berita-container');
+            const container = document.getElementById('berita-grid');
             
             try {
                 const { data, error } = await supabase.from('berita').select('*').order('tanggal', { ascending: false });
                 
                 if (error) throw error;
                 
-                container.innerHTML = ''; // Bersihkan tulisan loading
-                
-                if (data && data.length > 0) {
-                    data.forEach(berita => {
-                        // Format tanggal
-                        const dateObj = new Date(berita.tanggal);
-                        const dateStr = dateObj.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-                        
-                        const article = document.createElement('article');
-                        article.className = 'news-article';
-                        
-                        let thumbnailHtml = '';
-                        if (berita.foto_url) {
-                            thumbnailHtml = `<img src="${berita.foto_url}" style="width:100%; max-height:400px; object-fit:cover; border-radius:10px; margin-bottom:1.5rem;" alt="${berita.judul}">`;
-                        }
+                allBerita = data || [];
+                renderBerita(allBerita);
 
-                        // Buat agar isi teks mendukung enter (baris baru)
-                        const formatIsi = berita.isi.replace(/\n/g, '<br>');
-                        
-                        let authorName = berita.author || 'Pengurus Dusun';
-                        if (authorName.includes('.kampungrapet@gmail.com')) {
-                            authorName = authorName.replace('.kampungrapet@gmail.com', '');
-                        } else if (authorName.includes('@admin.local')) {
-                            authorName = authorName.replace('@admin.local', '');
-                        } else if (authorName.includes('@admin.kampungrapet.com')) {
-                            authorName = authorName.replace('@admin.kampungrapet.com', '');
-                        } else if (authorName.includes('@')) {
-                            authorName = authorName.split('@')[0];
-                        }
-                        authorName = authorName.charAt(0).toUpperCase() + authorName.slice(1);
-
-                        article.innerHTML = `
-                            ${thumbnailHtml}
-                            <h2>${berita.judul}</h2>
-                            <div class="news-meta"><i class="fa-regular fa-calendar"></i> ${dateStr} | Diterbitkan oleh: ${authorName}</div>
-                            <p style="white-space: pre-line;">${formatIsi}</p>
-                        `;
-                        container.appendChild(article);
-                    });
-                } else {
-                    container.innerHTML = '<p style="text-align: center; font-size: 1.1rem;">Belum ada berita yang diterbitkan saat ini.</p>';
-                }
-            } catch (error) {
-                console.error("Error mengambil data berita:", error.message);
-                container.innerHTML = '<p style="text-align: center; color: red;">Gagal memuat berita dari server.</p>';
+            } catch (err) {
+                console.error("Gagal memuat berita:", err.message);
+                container.innerHTML = '<p style="text-align: center; color: red; grid-column: 1 / -1;">Gagal memuat berita.</p>';
             }
         });
 
-        // Fitur Scroll to Top
-        const scrollBtn = document.getElementById("scrollTopBtn");
+        function renderBerita(beritaList) {
+            const container = document.getElementById('berita-grid');
+            container.innerHTML = '';
+            
+            if (beritaList.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Belum ada berita.</p>';
+                return;
+            }
+
+            beritaList.forEach(berita => {
+                // Card Link Wrapper
+                const card = document.createElement('a');
+                card.href = `detail_berita.html?id=${berita.id}`;
+                card.className = 'news-card';
+                
+                // Thumbnail
+                let thumbnailHtml = '<div class="news-thumbnail" style="display:flex; align-items:center; justify-content:center; color:#94a3b8;"><i class="fa-solid fa-image fa-3x"></i></div>';
+                if (berita.foto_url) {
+                    thumbnailHtml = `<img src="${berita.foto_url}" class="news-thumbnail" alt="${berita.judul}">`;
+                }
+
+                // Category Badge
+                let categoryHtml = '';
+                if (berita.kategori) {
+                    categoryHtml = `<span class="news-category">${berita.kategori}</span>`;
+                }
+
+                // Content
+                card.innerHTML = `
+                    ${thumbnailHtml}
+                    <div class="news-content">
+                        ${categoryHtml}
+                        <h2 class="news-title">${berita.judul}</h2>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        function filterBerita() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allBerita.filter(b => b.judul.toLowerCase().includes(searchInput));
+            renderBerita(filtered);
+        }
+
+        // Tampilkan tombol saat scroll ke bawah
         window.onscroll = function() {
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                scrollBtn.style.display = "block";
+            const btn = document.getElementById("scrollTopBtn");
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                btn.style.display = "block";
             } else {
-                scrollBtn.style.display = "none";
+                btn.style.display = "none";
             }
         };
+
+        // Scroll kembali ke atas
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }

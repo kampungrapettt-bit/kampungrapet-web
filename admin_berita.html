@@ -113,6 +113,11 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="kategori">Kategori</label>
+                    <input type="text" id="kategori" class="form-control" placeholder="Contoh: Kegiatan, Pengumuman, Budaya..." required>
+                </div>
+                
+                <div class="form-group">
                     <label for="foto">Foto Cover (Opsional)</label>
                     <input type="file" id="foto" class="form-control" accept="image/*">
                 </div>
@@ -137,6 +142,7 @@
                         <tr>
                             <th style="width: 50px;">No</th>
                             <th>Judul</th>
+                            <th>Kategori</th>
                             <th>Tanggal</th>
                             <th style="width: 200px;">Aksi</th>
                         </tr>
@@ -189,14 +195,16 @@
                     // Escape data untuk keamanan dari tanda kutip
                     const judul = item.judul ? item.judul.replace(/'/g, "\\'") : '';
                     const isi = item.isi ? item.isi.replace(/'/g, "\\'") : '';
+                    const kategori = item.kategori ? item.kategori.replace(/'/g, "\\'") : '';
                     
                     tbody.innerHTML += `
                         <tr>
                             <td>${index + 1}</td>
                             <td>${item.judul}</td>
+                            <td>${item.kategori || '-'}</td>
                             <td>${item.tanggal}</td>
                             <td>
-                                <button class="btn-action btn-edit" onclick="editData('${item.id}', '${judul}', '${item.tanggal}', '${isi}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                                <button class="btn-action btn-edit" onclick="editData('${item.id}', '${judul}', '${item.tanggal}', '${isi}', '${kategori}')"><i class="fa-solid fa-pen"></i> Edit</button>
                                 <button class="btn-action btn-delete" onclick="hapusData('${item.id}')"><i class="fa-solid fa-trash"></i> Hapus</button>
                             </td>
                         </tr>
@@ -217,6 +225,7 @@
             try {
                 const judul = document.getElementById('judul').value;
                 const tanggal = document.getElementById('tanggal').value;
+                const kategori = document.getElementById('kategori').value;
                 const isi = document.getElementById('isi').value;
                 const fileInput = document.getElementById('foto');
                 
@@ -235,7 +244,7 @@
 
                 if (editId) {
                     // Proses Update
-                    const updates = { judul, tanggal, isi };
+                    const updates = { judul, tanggal, isi, kategori };
                     if (foto_url) updates.foto_url = foto_url; // Update foto hanya jika diisi baru
 
                     const { error } = await supabase.from('berita').update(updates).eq('id', editId);
@@ -259,7 +268,7 @@
                         username = username.charAt(0).toUpperCase() + username.slice(1);
                     }
                     
-                    const { error } = await supabase.from('berita').insert([{ judul, tanggal, isi, foto_url, author: username }]);
+                    const { error } = await supabase.from('berita').insert([{ judul, tanggal, isi, foto_url, author: username, kategori }]);
                     if (error) throw error;
                     showNotification('Berita baru berhasil dipublikasikan!');
                 }
@@ -276,10 +285,11 @@
             }
         }
 
-        function editData(id, judul, tanggal, isi) {
+        function editData(id, judul, tanggal, isi, kategori) {
             editId = id;
             document.getElementById('judul').value = judul;
             document.getElementById('tanggal').value = tanggal;
+            document.getElementById('kategori').value = kategori || '';
             document.getElementById('isi').value = isi;
             document.getElementById('btnCancelEdit').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
