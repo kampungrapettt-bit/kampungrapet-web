@@ -117,16 +117,38 @@
             </form>
         </div>
 
-        <div class="card">
+        <div class="card" style="margin-bottom: 2rem;">
             <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;">Ganti Password</h2>
             <form id="passwordForm" onsubmit="changePassword(event)">
                 <div class="form-group" style="position: relative;">
                     <label>Password Baru</label>
                     <input type="password" id="newPassword" class="form-control" placeholder="Masukkan password baru (minimal 6 karakter)" required style="padding-right: 40px;">
-                    <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 15px; top: 40px; cursor: pointer; color: var(--text-light);" onclick="togglePasswordVisibility()"></i>
+                    <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 15px; top: 40px; cursor: pointer; color: var(--text-light);" onclick="togglePasswordVisibility('newPassword', 'togglePassword')"></i>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Password Baru</button>
                 <p id="pwd-msg" style="margin-top: 1.5rem; font-size: 0.95rem; text-align: center; font-weight: 500;"></p>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;"><i class="fa-solid fa-user-plus"></i> Tambah Akun Admin Baru</h2>
+            <form id="addAdminForm" onsubmit="addAdminAccount(event)">
+                <div class="form-group">
+                    <label>Username Admin Baru</label>
+                    <input type="text" id="addUsername" class="form-control" placeholder="tanpa spasi (misal: admin_keuangan)" required>
+                </div>
+                <div class="form-group" style="position: relative;">
+                    <label>Password Akun Baru</label>
+                    <input type="password" id="addPassword" class="form-control" placeholder="minimal 6 karakter" required style="padding-right: 40px;">
+                    <i class="fa-solid fa-eye" id="toggleAddPassword" style="position: absolute; right: 15px; top: 40px; cursor: pointer; color: var(--text-light);" onclick="togglePasswordVisibility('addPassword', 'toggleAddPassword')"></i>
+                </div>
+                <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+                    <p style="font-size: 0.85rem; color: #b45309; margin: 0; font-weight: 500;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <b>Perhatian:</b> Setelah akun berhasil dibuat, sistem akan otomatis melakukan <b>Logout</b> demi keamanan. Anda akan diminta login ulang.
+                    </p>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #10b981;"><i class="fa-solid fa-check"></i> Buat Akun Admin</button>
+                <p id="add-msg" style="margin-top: 1.5rem; font-size: 0.95rem; text-align: center; font-weight: 500;"></p>
             </form>
         </div>
     </main>
@@ -233,7 +255,6 @@
         async function changePassword(e) {
             e.preventDefault();
             
-            // Tambahkan konfirmasi ganti password
             if(!confirm('Apakah Anda yakin ingin mengubah password admin ini? Pastikan Anda mengingat password yang baru agar tidak terkunci!')) {
                 return;
             }
@@ -267,9 +288,64 @@
             }
         }
 
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('newPassword');
-            const toggleIcon = document.getElementById('togglePassword');
+        async function addAdminAccount(e) {
+            e.preventDefault();
+
+            if(!confirm('Anda akan ter-logout secara otomatis setelah akun ini berhasil dibuat. Lanjutkan?')) {
+                return;
+            }
+
+            const btn = e.target.querySelector('button');
+            const msg = document.getElementById('add-msg');
+            const usr = document.getElementById('addUsername').value.trim();
+            const pwd = document.getElementById('addPassword').value;
+
+            if(usr.includes(' ')) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Username tidak boleh mengandung spasi.";
+                return;
+            }
+            if(pwd.length < 6) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Password minimal harus 6 karakter.";
+                return;
+            }
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Membuat Akun...';
+            btn.disabled = true;
+
+            try {
+                const emailFormat = `${usr}@admin.local`;
+                const { data, error } = await supabase.auth.signUp({
+                    email: emailFormat,
+                    password: pwd
+                });
+                
+                if (error) throw error;
+                
+                msg.style.color = '#10b981';
+                msg.innerText = "Berhasil! Mengalihkan ke halaman login dalam 3 detik...";
+                
+                setTimeout(async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = 'admin_login.html';
+                }, 3000);
+            } catch (err) {
+                msg.style.color = '#ef4444';
+                let errMsg = err.message;
+                if (errMsg.toLowerCase().includes('already registered')) {
+                    errMsg = "Username tersebut sudah pernah didaftarkan. Gunakan nama lain.";
+                }
+                msg.innerText = "Gagal: " + errMsg;
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function togglePasswordVisibility(inputId = 'newPassword', iconId = 'togglePassword') {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
