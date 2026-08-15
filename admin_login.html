@@ -125,8 +125,8 @@
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
-            // Kita menambahkan suffix @admin.kampungrapet.com di belakang layar agar sistem otentikasi Supabase menganggapnya sebagai email valid.
-            const emailFormat = `${username}@admin.kampungrapet.com`;
+            // Kita menambahkan suffix .kampungrapet@gmail.com di belakang layar agar sistem otentikasi Supabase menganggapnya valid (melewati cek server email).
+            const emailFormat = `${username}.kampungrapet@gmail.com`;
 
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({

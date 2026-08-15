@@ -225,7 +225,7 @@
                 return;
             }
 
-            const newEmailFormat = `${newUsr}@admin.kampungrapet.com`;
+            const newEmailFormat = `${newUsr}.kampungrapet@gmail.com`;
             const originalText = btn.innerHTML;
             
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
@@ -316,7 +316,7 @@
             btn.disabled = true;
 
             try {
-                const emailFormat = `${usr}@admin.kampungrapet.com`;
+                const emailFormat = `${usr}.kampungrapet@gmail.com`;
                 const { data, error } = await supabase.auth.signUp({
                     email: emailFormat,
                     password: pwd
