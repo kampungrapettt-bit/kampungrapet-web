@@ -131,11 +131,23 @@
 
                         // Buat agar isi teks mendukung enter (baris baru)
                         const formatIsi = berita.isi.replace(/\n/g, '<br>');
+                        
+                        let authorName = berita.author || 'Pengurus Dusun';
+                        if (authorName.includes('.kampungrapet@gmail.com')) {
+                            authorName = authorName.replace('.kampungrapet@gmail.com', '');
+                        } else if (authorName.includes('@admin.local')) {
+                            authorName = authorName.replace('@admin.local', '');
+                        } else if (authorName.includes('@admin.kampungrapet.com')) {
+                            authorName = authorName.replace('@admin.kampungrapet.com', '');
+                        } else if (authorName.includes('@')) {
+                            authorName = authorName.split('@')[0];
+                        }
+                        authorName = authorName.charAt(0).toUpperCase() + authorName.slice(1);
 
                         article.innerHTML = `
                             ${thumbnailHtml}
                             <h2>${berita.judul}</h2>
-                            <div class="news-meta"><i class="fa-regular fa-calendar"></i> ${dateStr} | Diterbitkan oleh: ${berita.author || 'Pengurus Kampung Rapet'}</div>
+                            <div class="news-meta"><i class="fa-regular fa-calendar"></i> ${dateStr} | Diterbitkan oleh: ${authorName}</div>
                             <p style="white-space: pre-line;">${formatIsi}</p>
                         `;
                         container.appendChild(article);
