@@ -391,7 +391,8 @@
                         <img src="${p.foto_url}" alt="${p.judul || 'Foto'}">
                         <div class="photo-overlay">
                             <div style="font-weight:600; margin-bottom:5px;">${p.judul || 'Tanpa Judul'}</div>
-                            ${date ? `<div style="font-size:0.75rem;"><i class="fa-regular fa-calendar"></i> ${date}</div>` : ''}
+                            ${date ? `<div style="font-size:0.75rem; margin-bottom:10px;"><i class="fa-regular fa-calendar"></i> ${date}</div>` : ''}
+                            <a href="${p.foto_url}" download target="_blank" style="display:inline-block; background:var(--primary-color); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:0.8rem; margin-top:5px;"><i class="fa-solid fa-download"></i> Unduh Foto</a>
                         </div>
                     </div>
                 `;
