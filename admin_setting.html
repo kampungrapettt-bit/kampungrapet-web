@@ -102,6 +102,21 @@
             </form>
         </div>
 
+        <div class="card" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;">Ganti Username Admin</h2>
+            <form id="usernameForm" onsubmit="changeUsername(event)">
+                <div class="form-group">
+                    <label>Username Baru</label>
+                    <input type="text" id="newUsername" class="form-control" placeholder="Masukkan username baru (tanpa spasi)" required>
+                    <p style="font-size: 0.85rem; color: #ef4444; margin-top: 0.5rem; font-weight: 500;">
+                        *Penting: Pastikan fitur "Confirm Email Changes" di menu Authentication > Providers > Email pada Supabase Anda sudah di-Nonaktifkan.
+                    </p>
+                </div>
+                <button type="submit" class="btn-submit"><i class="fa-solid fa-user-pen"></i> Simpan Username Baru</button>
+                <p id="usr-msg" style="margin-top: 1.5rem; font-size: 0.95rem; text-align: center; font-weight: 500;"></p>
+            </form>
+        </div>
+
         <div class="card">
             <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;">Ganti Password</h2>
             <form id="passwordForm" onsubmit="changePassword(event)">
@@ -165,6 +180,50 @@
                 alert('Informasi Kontak Website berhasil diperbarui!');
             } catch (err) {
                 alert('Gagal menyimpan kontak: ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function changeUsername(e) {
+            e.preventDefault();
+
+            if(!confirm('Apakah Anda yakin ingin mengubah username admin? Anda harus login ulang menggunakan username yang baru.')) {
+                return;
+            }
+
+            const btn = e.target.querySelector('button');
+            const msg = document.getElementById('usr-msg');
+            const newUsr = document.getElementById('newUsername').value.trim();
+
+            if(newUsr.includes(' ')) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Username tidak boleh mengandung spasi.";
+                return;
+            }
+
+            const newEmailFormat = `${newUsr}@admin.local`;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabase.auth.updateUser({ email: newEmailFormat });
+                if (error) throw error;
+                msg.style.color = '#10b981';
+                msg.innerText = "Berhasil! Username Anda telah diubah. Silakan login ulang.";
+                document.getElementById('newUsername').value = '';
+                
+                // Logout paksa agar mereka masuk dengan username baru
+                setTimeout(async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = 'admin_login.html';
+                }, 2000);
+            } catch (err) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Gagal mengubah username: " + err.message;
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
