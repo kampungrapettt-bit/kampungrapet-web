@@ -71,6 +71,16 @@
             overflow-wrap: break-word;
         }
 
+        /* Mencegah teks super panjang merusak layout */
+        .article-detail h1, 
+        .article-detail span, 
+        .article-detail p, 
+        .article-detail a {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap; /* For respecting newlines while wrapping */
+        }
+
         .btn-back {
             display: inline-block;
             margin-bottom: 1.5rem;
