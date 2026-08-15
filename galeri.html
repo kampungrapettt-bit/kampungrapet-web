@@ -392,7 +392,7 @@
                         <div class="photo-overlay">
                             <div style="font-weight:600; margin-bottom:5px;">${p.judul || 'Tanpa Judul'}</div>
                             ${date ? `<div style="font-size:0.75rem; margin-bottom:10px;"><i class="fa-regular fa-calendar"></i> ${date}</div>` : ''}
-                            <a href="${p.foto_url}" download target="_blank" style="display:inline-block; background:var(--primary-color); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:0.8rem; margin-top:5px;"><i class="fa-solid fa-download"></i> Unduh Foto</a>
+                            <button onclick="forceDownload('${p.foto_url}', 'Foto-${date ? date.replace(/\\//g, '-') : 'Galeri'}.jpg')" style="border:none; cursor:pointer; display:inline-block; background:var(--primary-color); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:0.8rem; margin-top:5px; font-family: 'Poppins', sans-serif;"><i class="fa-solid fa-download"></i> Unduh Foto</button>
                         </div>
                     </div>
                 `;
@@ -402,6 +402,34 @@
         function closeAlbum() {
             document.getElementById('view-albums').style.display = 'block';
             document.getElementById('view-album').style.display = 'none';
+        }
+
+        async function forceDownload(url, filename) {
+            try {
+                // Tampilkan indikator loading (opsional)
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang Mengunduh...';
+                
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = objectUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
+                
+                // Kembalikan teks tombol
+                btn.innerHTML = originalText;
+            } catch (e) {
+                console.error("Gagal mengunduh foto:", e);
+                window.open(url, '_blank'); // Fallback buka di tab baru jika gagal
+            }
         }
     </script>
 </body>
