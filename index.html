@@ -28,13 +28,15 @@
             width: 100%;
             z-index: 1001;
             display: none;
-            background-color: #f59e0b;
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary-color));
             color: white;
             padding: 10px 0;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.95rem;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
@@ -134,7 +136,7 @@
                 if (!pError && pData && pData.is_active && pData.teks) {
                     const banner = document.getElementById('pengumuman-banner');
                     const text = document.getElementById('pengumuman-text');
-                    text.innerText = pData.teks;
+                    text.innerHTML = '<i class="fa-solid fa-bullhorn" style="margin-right: 10px;"></i>' + pData.teks;
                     banner.style.display = 'block';
                     
                     // Sesuaikan posisi navigasi agar tidak tertutup banner
