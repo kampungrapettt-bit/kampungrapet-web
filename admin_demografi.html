@@ -106,14 +106,7 @@
                 </div>
                 
                 <div class="flex-row">
-                    <div class="form-group flex-col">
-                        <label for="sd">Jumlah SD</label>
-                        <input type="number" id="sd" class="form-control" value="1" required>
-                    </div>
-                    <div class="form-group flex-col">
-                        <label for="smp">Jumlah SMP</label>
-                        <input type="number" id="smp" class="form-control" value="0" required>
-                    </div>
+
                     <div class="form-group flex-col">
                         <label for="ibadah">Tempat Ibadah</label>
                         <input type="number" id="ibadah" class="form-control" value="3" required>
@@ -136,8 +129,6 @@
                     document.getElementById('total').value = data.total_penduduk;
                     document.getElementById('laki').value = data.laki_laki;
                     document.getElementById('perempuan').value = data.perempuan;
-                    document.getElementById('sd').value = data.sd;
-                    document.getElementById('smp').value = data.smp;
                     document.getElementById('ibadah').value = data.tempat_ibadah;
                 }
             } catch (err) {
@@ -159,8 +150,7 @@
                 total_penduduk: parseInt(document.getElementById('total').value) || 0,
                 laki_laki: parseInt(document.getElementById('laki').value) || 0,
                 perempuan: parseInt(document.getElementById('perempuan').value) || 0,
-                sd: parseInt(document.getElementById('sd').value) || 0,
-                smp: parseInt(document.getElementById('smp').value) || 0,
+
                 tempat_ibadah: parseInt(document.getElementById('ibadah').value) || 0
             };
 
