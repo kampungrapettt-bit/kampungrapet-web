@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Profil Dusun Kampung Rapet, Sejarah, dan Visi Misi.">
-    <title>Profil - Dusun Kampung Rapet</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Profil Dusun - Dusun Kampung Rapet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
     <style>
@@ -254,6 +256,46 @@
                         <p style="font-size: 0.9rem;">Tempat Ibadah</p>
                     </div>
                 `;
+
+                // Render Chart if data exists
+                if (data.laki_laki || data.perempuan) {
+                    const chartContainer = document.createElement('div');
+                    chartContainer.style.width = '100%';
+                    chartContainer.style.maxWidth = '300px';
+                    chartContainer.style.margin = '2rem auto 0 auto';
+                    chartContainer.innerHTML = '<canvas id="genderChart"></canvas>';
+                    container.parentNode.insertBefore(chartContainer, container.nextSibling);
+
+                    const ctx = document.getElementById('genderChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Laki-laki', 'Perempuan'],
+                            datasets: [{
+                                data: [data.laki_laki || 0, data.perempuan || 0],
+                                backgroundColor: ['#3b82f6', '#ec4899'],
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Perbandingan Penduduk',
+                                    font: {
+                                        family: "'Poppins', sans-serif",
+                                        size: 16
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
             } catch (error) {
                 console.error("Error mengambil data demografi:", error);
                 document.getElementById('demografi-container').innerHTML = '<p style="text-align: center; color: red; width: 100%;">Gagal memuat demografi dari server.</p>';
