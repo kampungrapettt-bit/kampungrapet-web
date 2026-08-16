@@ -10,11 +10,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <style>
+        @keyframes scrollMarquee {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100%); }
+        }
+        .marquee-wrapper {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scrollMarquee 20s linear infinite;
+            padding-right: 50px;
+        }
+        #pengumuman-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1001;
+            display: none;
+            background-color: #f59e0b;
+            color: white;
+            padding: 10px 0;
+            font-weight: 500;
+            font-size: 0.95rem;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
     <!-- Pengumuman Berjalan -->
-    <div id="pengumuman-banner" style="display: none; background-color: #f59e0b; color: white; padding: 8px 0; font-weight: 500; font-size: 0.95rem; overflow: hidden; white-space: nowrap;">
-        <marquee behavior="scroll" direction="left" scrollamount="6" id="pengumuman-text"></marquee>
+    <div id="pengumuman-banner">
+        <div class="marquee-wrapper" id="pengumuman-text"></div>
     </div>
 
     <!-- Navigasi -->
@@ -109,6 +136,16 @@
                     const text = document.getElementById('pengumuman-text');
                     text.innerText = pData.teks;
                     banner.style.display = 'block';
+                    
+                    // Sesuaikan posisi navigasi agar tidak tertutup banner
+                    setTimeout(() => {
+                        const h = banner.offsetHeight;
+                        document.body.style.paddingTop = h + 'px';
+                        const nav = document.querySelector('nav');
+                        if (nav && window.innerWidth > 768) {
+                            nav.style.top = h + 'px';
+                        }
+                    }, 50);
                 }
             } catch (err) {
                 console.error("Gagal memuat pengumuman:", err);
