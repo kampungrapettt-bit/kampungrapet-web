@@ -12,6 +12,10 @@
     <script src="js/supabase-client.js"></script>
 </head>
 <body>
+    <!-- Pengumuman Berjalan -->
+    <div id="pengumuman-banner" style="display: none; background-color: #f59e0b; color: white; padding: 8px 0; font-weight: 500; font-size: 0.95rem; overflow: hidden; white-space: nowrap;">
+        <marquee behavior="scroll" direction="left" scrollamount="6" id="pengumuman-text"></marquee>
+    </div>
 
     <!-- Navigasi -->
     <nav>
@@ -97,6 +101,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            // Ambil Pengumuman
+            try {
+                const { data: pData, error: pError } = await supabase.from('pengumuman').select('*').eq('id', 1).maybeSingle();
+                if (!pError && pData && pData.is_active && pData.teks) {
+                    const banner = document.getElementById('pengumuman-banner');
+                    const text = document.getElementById('pengumuman-text');
+                    text.innerText = pData.teks;
+                    banner.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Gagal memuat pengumuman:", err);
+            }
+
             const container = document.getElementById('dayatarik-container');
             
             try {

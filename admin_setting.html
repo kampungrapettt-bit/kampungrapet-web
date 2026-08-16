@@ -103,6 +103,21 @@
         </div>
 
         <div class="card" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;"><i class="fa-solid fa-bullhorn"></i> Pengumuman Website (Running Text)</h2>
+            <form id="pengumumanForm" onsubmit="savePengumuman(event)">
+                <div class="form-group">
+                    <label>Teks Pengumuman</label>
+                    <textarea id="val_teks_pengumuman" class="form-control" rows="2" placeholder="Contoh: Kerja Bakti Massal hari Minggu pkl 07.00 WIB..." required></textarea>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="val_is_active" style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="val_is_active" style="margin: 0; cursor: pointer;">Aktifkan Pengumuman di Beranda</label>
+                </div>
+                <button type="submit" class="btn-submit" id="btnSimpanPengumuman" style="background-color: #3b82f6;"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan Pengumuman</button>
+            </form>
+        </div>
+
+        <div class="card" style="margin-bottom: 2rem;">
             <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: #0f172a;">Ganti Password</h2>
             <form id="passwordForm" onsubmit="changePassword(event)">
                 <div class="form-group" style="position: relative;">
@@ -144,10 +159,51 @@
             if (!session) {
                 window.location.href = 'admin_login.html';
             } else {
-                // Tampilkan info kontak
+                // Tampilkan info kontak dan pengumuman
                 fetchKontak();
+                fetchPengumuman();
             }
         });
+
+        async function fetchPengumuman() {
+            try {
+                const { data, error } = await supabase.from('pengumuman').select('*').eq('id', 1).maybeSingle();
+                if (error) throw error;
+                if (data) {
+                    document.getElementById('val_teks_pengumuman').value = data.teks || '';
+                    document.getElementById('val_is_active').checked = data.is_active;
+                }
+            } catch (error) {
+                console.error("Gagal memuat pengumuman:", error.message);
+            }
+        }
+
+        async function savePengumuman(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSimpanPengumuman');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            const updates = {
+                id: 1,
+                teks: document.getElementById('val_teks_pengumuman').value,
+                is_active: document.getElementById('val_is_active').checked,
+                created_at: new Date()
+            };
+
+            try {
+                const { error } = await supabase.from('pengumuman').upsert(updates);
+                if (error) throw error;
+                alert('Pengumuman berhasil diperbarui!');
+            } catch (err) {
+                alert('Gagal menyimpan pengumuman: ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
 
         async function fetchKontak() {
             try {
