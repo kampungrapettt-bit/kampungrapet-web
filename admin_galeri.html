@@ -136,11 +136,19 @@
 
     <div class="content-area" style="padding-top: 0;">
         <div class="card">
-            <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Daftar Galeri</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                <h2 style="font-size: 1.25rem; margin: 0;">Daftar Galeri</h2>
+                <div id="bulkActions" style="display: none; gap: 10px; align-items: center;">
+                    <span style="font-size: 0.9rem; font-weight: 500;" id="countTerpilih">0 Terpilih</span>
+                    <button class="btn-action btn-edit" onclick="editBanyak()" style="background-color: #f59e0b;"><i class="fa-solid fa-folder-open"></i> Pindah Folder</button>
+                    <button class="btn-action btn-delete" onclick="hapusBanyak()"><i class="fa-solid fa-trash"></i> Hapus</button>
+                </div>
+            </div>
             <div style="overflow-x: auto;">
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th style="width: 40px; text-align: center;"><input type="checkbox" id="checkAll" onclick="toggleCheckAll()"></th>
                             <th style="width: 50px;">No</th>
                             <th>Foto</th>
                             <th>Judul / Caption</th>
@@ -265,6 +273,7 @@
                     
                     tbody.innerHTML += `
                         <tr>
+                            <td style="text-align: center;"><input type="checkbox" class="checkItem" value="${item.id}" onclick="updateCheckCount()"></td>
                             <td>${index + 1}</td>
                             <td><img src="${item.foto_url}" style="height: 50px; width: 80px; border-radius: 5px; object-fit: cover;"></td>
                             <td>${item.judul}</td>
@@ -276,6 +285,10 @@
                         </tr>
                     `;
                 });
+                
+                // Reset select all state
+                document.getElementById('checkAll').checked = false;
+                updateCheckCount();
             } catch (err) {
                 console.error("Gagal memuat galeri:", err.message);
             }
@@ -372,6 +385,93 @@
                 await loadGaleri();
             } catch (err) {
                 showNotification(err.message, true);
+            }
+        }
+
+        function toggleCheckAll() {
+            const checkAll = document.getElementById('checkAll');
+            const checkboxes = document.querySelectorAll('.checkItem');
+            checkboxes.forEach(cb => cb.checked = checkAll.checked);
+            updateCheckCount();
+        }
+
+        function updateCheckCount() {
+            const checkboxes = document.querySelectorAll('.checkItem:checked');
+            const count = checkboxes.length;
+            const bulkActions = document.getElementById('bulkActions');
+            const countTerpilih = document.getElementById('countTerpilih');
+            
+            if (count > 0) {
+                bulkActions.style.display = 'flex';
+                countTerpilih.innerText = `${count} Terpilih`;
+            } else {
+                bulkActions.style.display = 'none';
+                document.getElementById('checkAll').checked = false;
+            }
+        }
+
+        async function hapusBanyak() {
+            const checkboxes = document.querySelectorAll('.checkItem:checked');
+            if (checkboxes.length === 0) return;
+            
+            if(!confirm(`Yakin ingin menghapus ${checkboxes.length} foto terpilih secara permanen?`)) return;
+            
+            const ids = Array.from(checkboxes).map(cb => cb.value);
+            
+            try {
+                const btn = document.querySelector('#bulkActions .btn-delete');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghapus...';
+                btn.disabled = true;
+
+                const { error } = await supabase.from('galeri').delete().in('id', ids);
+                if (error) throw error;
+                
+                showNotification(`${ids.length} Foto berhasil dihapus!`);
+                await loadGaleri();
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            } catch (err) {
+                showNotification(err.message, true);
+                document.querySelector('#bulkActions .btn-delete').innerHTML = '<i class="fa-solid fa-trash"></i> Hapus';
+                document.querySelector('#bulkActions .btn-delete').disabled = false;
+            }
+        }
+
+        async function editBanyak() {
+            const checkboxes = document.querySelectorAll('.checkItem:checked');
+            if (checkboxes.length === 0) return;
+            
+            const katSelect = document.getElementById('kategori_id');
+            const options = Array.from(katSelect.options).map(opt => `${opt.value ? opt.value : '0'} = ${opt.text}`).join('\n');
+            
+            const promptMsg = `Masukkan NOMOR FOLDER tujuan:\n\n${options}\n\nKetik 0 jika ingin melepas foto dari folder.`;
+            const targetKat = prompt(promptMsg);
+            
+            if (targetKat === null) return; 
+            
+            const newKatId = (targetKat.trim() === '0' || targetKat.trim() === '') ? null : targetKat.trim();
+            const ids = Array.from(checkboxes).map(cb => cb.value);
+            
+            try {
+                const btn = document.querySelector('#bulkActions .btn-edit');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memindah...';
+                btn.disabled = true;
+
+                const { error } = await supabase.from('galeri').update({ kategori_id: newKatId }).in('id', ids);
+                if (error) throw error;
+                
+                showNotification(`${ids.length} Foto berhasil dipindah folder!`);
+                await loadGaleri();
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            } catch (err) {
+                showNotification("Error: Pastikan nomor ID folder valid. " + err.message, true);
+                document.querySelector('#bulkActions .btn-edit').innerHTML = '<i class="fa-solid fa-folder-open"></i> Pindah Folder';
+                document.querySelector('#bulkActions .btn-edit').disabled = false;
             }
         }
     </script>
